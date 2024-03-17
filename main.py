@@ -14,12 +14,15 @@ print("10. single impulse")
 print("11. impulse noise")
 
 Type = input("choose a signal type:")
+Type = int(Type)
 
 if(Type > 2 and Type < 9):
-    A = input("Amplitude: ")
-    f = input("frequency: ")
-    t = input("time: ")
-    d = input("phase: ")
+    A = float(input("Amplitude: "))
+    f = float(input("frequency: "))
+    t = float(input("time: "))
+    d = float(input("phase: "))
+
+wave = None
 
 match Type:
     case 1:
@@ -27,11 +30,11 @@ match Type:
     case 2:
         print("bomba")
     case 3:
-        w.SinWave(A, f, t, d)
+        wave = w.SinWave(A, f, t, d)
     case 4:
-        print("bomba")
+        wave = w.SinHalfWave(A, f, t, d)
     case 5:
-        print("bomba")
+        wave = w.SinModWave(A, f, t, d)
     case 6:
         print("bomba")
     case 7:
@@ -44,4 +47,6 @@ match Type:
         print("bomba")
     case 11:
         print("bomba")
-print(Type)
+p = int(input("Number of probes: "))
+print(wave)
+print(wave.calculate(p))
