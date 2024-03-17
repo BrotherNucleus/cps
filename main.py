@@ -36,11 +36,12 @@ match Type:
     case 5:
         wave = w.SinModWave(A, f, t, d)
     case 6:
-        print("bomba")
+        wave = w.SquareWave(A, f, t, d)
     case 7:
-        print("bomba")
+        wave = w.SymSquareWave(A, f, t, d)
     case 8:
-        print("bomba")
+        k = float(input("Coefficient: "))
+        wave = w.TriangleWave(A, f, t, d, k)
     case 9:
         print("bomba")
     case 10:
