@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 eps = 6e-10
 class Wave:
@@ -103,37 +102,23 @@ class TriangleWave(Wave):
     def __str__(self):
         return super().__str__() + f' Coefficient: {self.coeff}'
     def calculate(self, p):
+        T = 1 / self.frequency
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):
             result[t][0] = probeTime * t
-            currT = np.floor(probeTime * t * self.frequency)
-            up = np.logical_and(currT / self.frequency + self.phase <= probeTime*t, 
-                                probeTime*t < self.coeff / self.frequency + currT /self.frequency + self.phase)
+            currT = np.floor(probeTime * t / T)
+            up = np.logical_and(currT * T + self.phase <= probeTime*t, 
+                                probeTime*t < self.coeff * T + currT * T + self.phase)
             
-            down = np.logical_and(self.coeff / self.frequency + currT / self.frequency + self.phase <= t,
-                                               t <= (currT + 1) / self.frequency + self.phase)
+            down = np.logical_and(self.coeff * T + currT * T + self.phase <= probeTime*t,
+                                               probeTime*t < T + currT*T + self.phase)
 
             if up:
-                result[t][1] = (self.amplitude*self.frequency) / self.coeff * (probeTime*t - currT / self.frequency - self.phase)
+                result[t][1] = (self.amplitude / (self.coeff * T)) * (probeTime*t - currT*T - self.phase)
             elif down:
-                result[t][1] = (-self.amplitude * self.frequency) / (1 - self.coeff) * (probeTime*t - currT / self.frequency - self.phase) + (self.amplitude/(1 - self.coeff))
+                result[t][1] = ((-self.amplitude / (T*(1 - self.coeff))) * (t*probeTime - currT*T - self.phase)) + (self.amplitude / (1 - self.coeff))
             else:
                 result[t][1] = 0
         self.res = result
-        plt.style.use('_mpl-gallery')
-
-        # make data
-        x = result[:, [0]]
-        y = result[:, [1]]
-
-        # plot
-        fig, ax = plt.subplots()
-
-        ax.plot(x, y, linewidth=2.0)
-
-        ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
-            ylim=(0, 8), yticks=np.arange(1, 8))
-
-        plt.show()
         return result    

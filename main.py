@@ -1,5 +1,9 @@
 import numpy as np
 import waves as w
+import graph as g
+
+cam = g.graph()
+
 
 print("1. linear noise")
 print("2. gaussian noise")
@@ -48,6 +52,17 @@ match Type:
         print("bomba")
     case 11:
         print("bomba")
-p = int(input("Number of probes: "))
+    case 0:
+        wave = w.TriangleWave(10, 0.5, 10, 0.3, 0.5)
+        A = 10
+        f = 0.5
+        t = 10
+        d = 0.5
+if Type != 0:
+    p = int(input("Number of probes: "))
+else:
+    p = 300
 print(wave)
-print(wave.calculate(p))
+values = wave.calculate(p)
+print(values)
+cam.displayGraph(values, A, t)
