@@ -52,3 +52,20 @@ class randomImpulse(impulse):
             if(self.random()):
                 ret[i][1] = self.amplitude
         return ret
+    
+class jump(impulse):
+    def __init__(self, A, d, ts):
+        self.jumpTime = ts
+        super().__init__(A, None, d)
+    def __str__(self):
+        return super().__str__() + f'jump time: {self.jumpTime}'
+    def calculate(self, p):
+        probeTime = self.time / (p-1)
+        result = np.empty((p, 2))
+        for t in range(p):
+            result[t][0] = t*probeTime
+            if(t*probeTime < self.jumpTime):
+                result[t][1] = 0
+            else:
+                result[t][1] = self.amplitude
+        return result

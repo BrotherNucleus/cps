@@ -26,6 +26,10 @@ if(Type > 2 and Type < 9):
     f = float(input("frequency: "))
     t = float(input("time: "))
     d = float(input("phase: "))
+elif Type == 9:
+    A = float(input("Amplitude: "))
+    t = float(input("time: "))
+    ts = float(input("jump time: "))  
 elif Type == 10:
     A = float(input("Amplitude: "))
     f = float(input("frequency: "))
@@ -59,17 +63,16 @@ match Type:
         k = float(input("Coefficient: "))
         wave = w.TriangleWave(A, f, t, d, k)
     case 9:
-        print("bomba")
+        wave = i.jump(A, t, ts)
     case 10:
         wave = i.singleImpulse(A, f, t, n1, ns)
     case 11:
         wave = i.randomImpulse(A, f, t, p)
     case 0:
         A = 10
-        f = 30
         t = 10
-        p = 0.02
-        wave = i.randomImpulse(A, f, t, p)
+        ts = 5
+        wave = i.jump(A, t, ts)
 if Type != 0 and type(wave) != i.singleImpulse and type(wave != i.randomImpulse):
     p = int(input("Number of probes: "))
 else:
