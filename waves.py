@@ -3,7 +3,17 @@ import noise
 import impulse
 
 eps = 6e-10
+
 class Wave:
+    """
+    Basic Wave function - serves as the basis for the other wave functions \n
+    A - amplitude of the wave \n
+    f - frequency of the wave \n
+    d - time in which the wave will be calculated \n
+    phi - phase change of the function \n
+
+    You can see this basic wave function be used as a way to see the functions created by division, multiplication or addition of two waves or wave and impluse/noise.
+    """
     def __init__(self, A, f, d, phi):
         self.amplitude = A
         self.frequency = f
@@ -58,9 +68,25 @@ class Wave:
 
 
 class SinWave(Wave):
+    """
+    Sin Wave function - extends Wave \n
+    A - amplitude of the wave \n
+    f - frequency of the wave \n
+    d - time in which the wave will be calculated \n
+    phi - phase change of the function \n
+    """
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
     def calculate(self, p):
+        """
+        function used to calculate values of a wave \n
+        p - number of probes \n
+        the function returns a numpy array ordered: \n
+        [[time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN, valueN]]\n
+        """
         self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
@@ -77,9 +103,26 @@ class SinWave(Wave):
         return f'{self.amplitude} * sin(2*PI*{self.frequency} * (t - {self.phase})'
 
 class SinHalfWave(Wave):
+    """
+    Sin Half Wave function - extends Wave \n
+    Sin Half Wave acts just like regular Sin Wave except every value below 0 is changed to 0 \n
+    A - amplitude of the wave \n
+    f - frequency of the wave \n
+    d - time in which the wave will be calculated \n
+    phi - phase change of the function \n
+    """
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
     def calculate(self, p):
+        """
+        function used to calculate values of a wave \n
+        p - number of probes \n
+        the function returns a numpy array ordered: \n
+        [[time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN, valueN]]\n
+        """
         self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
@@ -96,9 +139,26 @@ class SinHalfWave(Wave):
         return f'{self.amplitude} * sin(2*PI*{self.frequency} * (t - {self.phase})'
 
 class SinModWave(Wave):
+    """
+    Sin Mod Wave function - extends Wave \n
+    Sin Mod Wave - f(x) = |sin(x)|\n
+    A - amplitude of the wave \n
+    f - frequency of the wave \n
+    d - time in which the wave will be calculated \n
+    phi - phase change of the function \n
+    """
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
     def calculate(self, p):
+        """
+        function used to calculate values of a wave \n
+        p - number of probes \n
+        the function returns a numpy array ordered: \n
+        [[time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN, valueN]]\n
+        """
         self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
@@ -113,9 +173,26 @@ class SinModWave(Wave):
         return result
 
 class SquareWave(Wave):
+    """
+    Square Wave function - extends Wave \n
+    Square wave gives out a value of A every half cycle and 0 every other half \n
+    A - amplitude of the wave \n
+    f - frequency of the wave \n
+    d - time in which the wave will be calculated \n
+    phi - phase change of the function \n
+    """
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
     def calculate(self, p):
+        """
+        function used to calculate values of a wave \n
+        p - number of probes \n
+        the function returns a numpy array ordered: \n
+        [[time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN, valueN]]\n
+        """
         self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
@@ -132,9 +209,26 @@ class SquareWave(Wave):
         return result
 
 class SymSquareWave(Wave):
+    """
+    Symmetric Square Wave function - extends Wave \n
+    Symmetric Square wave gives out a value of A every half cycle and -A every other half \n
+    A - amplitude of the wave \n
+    f - frequency of the wave \n
+    d - time in which the wave will be calculated \n
+    phi - phase change of the function \n
+    """
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
     def calculate(self, p):
+        """
+        function used to calculate values of a wave \n
+        p - number of probes \n
+        the function returns a numpy array ordered: \n
+        [[time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN, valueN]]\n
+        """
         self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
@@ -149,12 +243,34 @@ class SymSquareWave(Wave):
         return result    
 
 class TriangleWave(Wave):
+    """
+    Triangle Wave function - extends Wave \n
+    Triangle Wave function: \n
+    -----------------------
+      /\
+     /  \
+    /    \
+    -----------------------
+    A - amplitude of the wave \n
+    f - frequency of the wave \n
+    d - time in which the wave will be calculated \n
+    phi - phase change of the function \n
+    """
     def __init__(self, A, f, d, phi, k):
         self.coeff = k
         super().__init__(A, f, d, phi)
     def __str__(self):
         return super().__str__() + f' Coefficient: {self.coeff}'
     def calculate(self, p):
+        """
+        function used to calculate values of a wave \n
+        p - number of probes \n
+        the function returns a numpy array ordered: \n
+        [[time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN, valueN]]\n
+        """
         self.probeNum = p
         T = 1 / self.frequency
         probeTime = self.time / (p-1)
