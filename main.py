@@ -1,6 +1,7 @@
 import numpy as np
 import waves as w
 import graph as g
+import impulse as i
 
 cam = g.graph()
 
@@ -25,6 +26,17 @@ if(Type > 2 and Type < 9):
     f = float(input("frequency: "))
     t = float(input("time: "))
     d = float(input("phase: "))
+elif Type == 10:
+    A = float(input("Amplitude: "))
+    f = float(input("frequency: "))
+    t = float(input("time: "))
+    n1 = float(input("first probe: "))
+    ns = float(input("impulse probe: "))
+elif Type == 11:
+    A = float(input("Amplitude: "))
+    f = float(input("frequency: "))
+    t = float(input("time: "))
+    p = float(input("probability [0.0-1.0]: "))  
 
 wave = None
 
@@ -49,20 +61,23 @@ match Type:
     case 9:
         print("bomba")
     case 10:
-        print("bomba")
+        wave = i.singleImpulse(A, f, t, n1, ns)
     case 11:
-        print("bomba")
+        wave = i.randomImpulse(A, f, t, p)
     case 0:
-        wave = w.TriangleWave(10, 0.5, 10, 0.3, 0.5)
         A = 10
-        f = 0.5
+        f = 30
         t = 10
-        d = 0.5
-if Type != 0:
+        p = 0.02
+        wave = i.randomImpulse(A, f, t, p)
+if Type != 0 and type(wave) != i.singleImpulse and type(wave != i.randomImpulse):
     p = int(input("Number of probes: "))
 else:
     p = 300
 print(wave)
-values = wave.calculate(p)
+if(type(wave) == i.singleImpulse or type(wave) == i.randomImpulse):
+    values = wave.calculate()
+else:
+    values = wave.calculate(p)
 print(values)
 cam.displayGraph(values, A, t)

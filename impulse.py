@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class impulse:
     def __init__(self, A, f, d):
@@ -21,9 +22,33 @@ class singleImpulse(impulse):
     def __str__(self):
         return super().__str__() + f'firstProbe = {self.firstProbe}; impulse Probe = {self.imProbe}; '
     def calculate(self):
-        n = self.frequency*self.time
-        ret = np.zeros(n)
+        n = int(self.frequency*self.time)
+        T = 1 / self.frequency
+        ret = np.zeros([n, 2])
         for i in range(n):
+            ret[i][0] = i*T
             if(i == self.imProbe):
-                ret[i] = self.amplitude
+                ret[i][1] = self.amplitude
+        return ret
+    
+class randomImpulse(impulse):
+    def __init__(self, A, f, d, p):
+        self.chance = p
+        super().__init__(A, f, d)
+    def __str__(self):
+        return super().__str__() + f'probability of an impulse: {self.chance}'
+    def random(self):
+        rand = random.uniform(0.0, 1.0)
+        if rand > self.chance:
+            return False
+        else:
+            return True
+    def calculate(self):
+        n = int(self.frequency*self.time)
+        T = 1 / self.frequency
+        ret = np.zeros([n, 2])
+        for i in range(n):
+            ret[i][0] = i*T
+            if(self.random()):
+                ret[i][1] = self.amplitude
         return ret

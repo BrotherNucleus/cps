@@ -9,6 +9,7 @@ class Wave:
         self.phase = phi
     def __str__(self):
         return f'A = {self.amplitude}, freq = {self.frequency}, phi = {self.phase}'
+
 class SinWave(Wave):
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
