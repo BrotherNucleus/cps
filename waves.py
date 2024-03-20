@@ -10,12 +10,17 @@ class Wave:
         self.time = d
         self.phase = phi
         self.result = None
+        self.probeNum = 0
     def __str__(self):
         return f'A = {self.amplitude}, freq = {self.frequency}, phi = {self.phase}'
     def __add__(self, other):
         if(other.result.shape == self.result.shape):
             wave = Wave(self.amplitude + other.amplitude, self.frequency, self.time, self.phase)
-            wave.result = self.result + other.result
+            res = np.zeros((self.result.shape))
+            for i in range(len(res)):
+                res[i][0] = self.result[i][0]
+                res[i][1] = self.result[i][1] + other.result[i][1]
+            wave.result = res
             return wave
         else:
             print(f"Error: cannot add two diffrently shaped arrays: ({self.result.shape}) + ({other.result.shape})")
@@ -33,12 +38,30 @@ class Wave:
                 res[i][1] = self.result[i][1] * other.result[i][1]
             wave.result = res
             return wave
+    def __truediv__(self, other):
+        if(other.result.shape == self.result.shape):
+            if(type(other) == noise.linearNoise or type(other) == noise.gaussianNoise or self.frequency > other.frequency):
+                f = self.frequency
+            else:
+                f = other.frequency
+            
+            wave = Wave(self.amplitude*other.amplitude, f, self.time, self.phase)
+            res = np.zeros((self.result.shape))
+            for i in range(len(res)):
+                res[i][0] = self.result[i][0]
+                if abs(other.result[i][1]) > 0.2:
+                    res[i][1] = self.result[i][1] / other.result[i][1]
+                else:
+                    res[i][1] = 0
+            wave.result = res
+            return wave
 
 
 class SinWave(Wave):
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
     def calculate(self, p):
+        self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):
@@ -57,6 +80,7 @@ class SinHalfWave(Wave):
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
     def calculate(self, p):
+        self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):
@@ -75,6 +99,7 @@ class SinModWave(Wave):
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
     def calculate(self, p):
+        self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):
@@ -91,6 +116,7 @@ class SquareWave(Wave):
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
     def calculate(self, p):
+        self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):
@@ -109,6 +135,7 @@ class SymSquareWave(Wave):
     def __init__(self, A, f, d, phi):
         super().__init__(A, f, d, phi)
     def calculate(self, p):
+        self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):
@@ -128,12 +155,13 @@ class TriangleWave(Wave):
     def __str__(self):
         return super().__str__() + f' Coefficient: {self.coeff}'
     def calculate(self, p):
+        self.probeNum = p
         T = 1 / self.frequency
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):
             result[t][0] = probeTime * t
-            currT = np.floor(probeTime * t / T)
+            currT = np.floor((probeTime * t - self.phase) / T)
             up = np.logical_and(currT * T + self.phase <= probeTime*t, 
                                 probeTime*t < self.coeff * T + currT * T + self.phase)
             

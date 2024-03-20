@@ -51,9 +51,9 @@ wave = None
 
 match Type:
     case 1:
-        wave = n.linearNoise(A, d, t)
+        wave = n.linearNoise(A, t)
     case 2:
-        wave = n.gaussianNoise(A, d, t)
+        wave = n.gaussianNoise(A, t)
     case 3:
         wave = w.SinWave(A, f, t, d)
     case 4:
@@ -70,26 +70,25 @@ match Type:
     case 9:
         wave = i.jump(A, t, ts)
     case 10:
-        wave = i.singleImpulse(A, f, t, n1, ns)
+        wave = i.singleImpulse(A, f, t, ns)
     case 11:
         wave = i.randomImpulse(A, f, t, p)
     case 0:
-        A = 0.2
+        A = 4
         t = 30
-        d = 0.5
-        wave1 = w.SinWave(0.3, 2, 30, 0)
+        wave1 = n.gaussianNoise(A, t)
         wave2 = w.SinWave(5, 0.1, 30, 0.2)
 if Type != 0 and type(wave) != i.singleImpulse and type(wave != i.randomImpulse):
     p = int(input("Number of probes: "))
 else:
-    p = 3000
+    p = 300
 print(wave)
 if(type(wave) == i.singleImpulse or type(wave) == i.randomImpulse):
     values = wave.calculate()
 else:
     values1 = wave1.calculate(p)
     values2 = wave2.calculate(p)
-    wave = wave1 * wave2
+    wave = wave2 / wave1
     A = wave.amplitude
     t = wave.time
     values = wave.result
