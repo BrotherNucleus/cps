@@ -6,6 +6,7 @@ class impulse:
         self.amplitude = A
         self.frequency = f
         self.time = d
+        self.result = None
     def __str__(self):
         return f'Amplitude = {self.amplitude}; freqency = {self.frequency}; time = {self.time}; '
 
@@ -29,6 +30,7 @@ class singleImpulse(impulse):
             ret[i][0] = i*T
             if(i == self.imProbe):
                 ret[i][1] = self.amplitude
+        self.result = ret
         return ret
     
 class randomImpulse(impulse):
@@ -51,6 +53,7 @@ class randomImpulse(impulse):
             ret[i][0] = i*T
             if(self.random()):
                 ret[i][1] = self.amplitude
+        self.result = ret
         return ret
     
 class jump(impulse):
@@ -68,4 +71,5 @@ class jump(impulse):
                 result[t][1] = 0
             else:
                 result[t][1] = self.amplitude
+        self.result = result
         return result

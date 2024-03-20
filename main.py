@@ -2,6 +2,7 @@ import numpy as np
 import waves as w
 import graph as g
 import impulse as i
+import noise as n
 
 cam = g.graph()
 
@@ -26,6 +27,10 @@ if(Type > 2 and Type < 9):
     f = float(input("frequency: "))
     t = float(input("time: "))
     d = float(input("phase: "))
+elif Type == 1 or Type == 2:
+    A = float(input("Amplitude: "))
+    t = float(input("time: "))
+    d = float(input("phase: "))
 elif Type == 9:
     A = float(input("Amplitude: "))
     t = float(input("time: "))
@@ -46,9 +51,9 @@ wave = None
 
 match Type:
     case 1:
-        print("bomba")
+        wave = n.linearNoise(A, d, t)
     case 2:
-        print("bomba")
+        wave = n.gaussianNoise(A, d, t)
     case 3:
         wave = w.SinWave(A, f, t, d)
     case 4:
@@ -69,18 +74,31 @@ match Type:
     case 11:
         wave = i.randomImpulse(A, f, t, p)
     case 0:
-        A = 10
-        t = 10
-        ts = 5
-        wave = i.jump(A, t, ts)
+        A = 0.2
+        t = 30
+        d = 0.5
+        wave1 = w.SinWave(0.3, 2, 30, 0)
+        wave2 = w.SinWave(5, 0.1, 30, 0.2)
 if Type != 0 and type(wave) != i.singleImpulse and type(wave != i.randomImpulse):
     p = int(input("Number of probes: "))
 else:
-    p = 300
+    p = 3000
 print(wave)
 if(type(wave) == i.singleImpulse or type(wave) == i.randomImpulse):
     values = wave.calculate()
 else:
-    values = wave.calculate(p)
+    values1 = wave1.calculate(p)
+    values2 = wave2.calculate(p)
+    wave = wave1 * wave2
+    A = wave.amplitude
+    t = wave.time
+    values = wave.result
+
+print(wave2.result)
+cam.displayGraph(wave2.result, 10, t)
+
+print(wave1.result)
+cam.displayGraph(wave1.result, 10, t)
+
 print(values)
-cam.displayGraph(values, A, t)
+cam.displayGraph(values, 10, t)

@@ -1,4 +1,6 @@
 import numpy as np
+import noise
+import impulse
 
 eps = 6e-10
 class Wave:
@@ -7,8 +9,31 @@ class Wave:
         self.frequency = f
         self.time = d
         self.phase = phi
+        self.result = None
     def __str__(self):
         return f'A = {self.amplitude}, freq = {self.frequency}, phi = {self.phase}'
+    def __add__(self, other):
+        if(other.result.shape == self.result.shape):
+            wave = Wave(self.amplitude + other.amplitude, self.frequency, self.time, self.phase)
+            wave.result = self.result + other.result
+            return wave
+        else:
+            print(f"Error: cannot add two diffrently shaped arrays: ({self.result.shape}) + ({other.result.shape})")
+    def __mul__(self, other):
+        if(other.result.shape == self.result.shape):
+            if(type(other) == noise.linearNoise or type(other) == noise.gaussianNoise or self.frequency > other.frequency):
+                f = self.frequency
+            else:
+                f = other.frequency
+            
+            wave = Wave(self.amplitude*other.amplitude, f, self.time, self.phase)
+            res = np.zeros((self.result.shape))
+            for i in range(len(res)):
+                res[i][0] = self.result[i][0]
+                res[i][1] = self.result[i][1] * other.result[i][1]
+            wave.result = res
+            return wave
+
 
 class SinWave(Wave):
     def __init__(self, A, f, d, phi):
@@ -23,7 +48,7 @@ class SinWave(Wave):
                 result[t][1] = 0
             else:
                 result[t][1] = test
-        self.res = result
+        self.result = result
         return result
     def __str__(self):
         return f'{self.amplitude} * sin(2*PI*{self.frequency} * (t - {self.phase})'
@@ -41,7 +66,7 @@ class SinHalfWave(Wave):
                 result[t][1] = 0
             else:
                 result[t][1] = test
-        self.res = result
+        self.result = result
         return result
     def __str__(self):
         return f'{self.amplitude} * sin(2*PI*{self.frequency} * (t - {self.phase})'
@@ -59,7 +84,7 @@ class SinModWave(Wave):
                 result[t][1] = 0
             else:
                 result[t][1] = test
-        self.res = result
+        self.result = result
         return result
 
 class SquareWave(Wave):
@@ -77,7 +102,7 @@ class SquareWave(Wave):
                 result[t][1] = self.amplitude
             else:
                 result[t][1] = 0
-        self.res = result
+        self.result = result
         return result
 
 class SymSquareWave(Wave):
@@ -93,7 +118,7 @@ class SymSquareWave(Wave):
                 result[t][1] = self.amplitude
             else:
                 result[t][1] = -self.amplitude
-        self.res = result
+        self.result = result
         return result    
 
 class TriangleWave(Wave):
@@ -121,5 +146,5 @@ class TriangleWave(Wave):
                 result[t][1] = ((-self.amplitude / (T*(1 - self.coeff))) * (t*probeTime - currT*T - self.phase)) + (self.amplitude / (1 - self.coeff))
             else:
                 result[t][1] = 0
-        self.res = result
+        self.result = result
         return result    
