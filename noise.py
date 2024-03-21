@@ -1,5 +1,7 @@
 import numpy as np
 import random
+import waves as w
+import impulse as im
 
 class noise:
     def __init__(self, A, d):
@@ -8,6 +10,73 @@ class noise:
         self.result = None
     def __str__(self):
         return f'amplitude = {self.amplitude}; phase = {self.phase}; time = {self.time}'
+    def __add__(self, other):
+        if(other.result.shape == self.result.shape):
+            if(type(other) == gaussianNoise or type(other) == linearNoise):
+                wave = noise(self.amplitude + other.amplitude, self.time)
+            elif(type(other) == im.jump or type(other) == im.randomImpulse or type(other) == im.singleImpulse):
+                wave = noise(self.amplitude + other.amplitude, self.time)
+            else:
+                wave = w.Wave(self.amplitude + other.amplitude, other.frequency, self.time, other.phase)
+            res = np.zeros((self.result.shape))
+            for i in range(len(res)):
+                res[i][0] = self.result[i][0]
+                res[i][1] = self.result[i][1] + other.result[i][1]
+            wave.result = res
+            return wave
+        else:
+            print(f"Error: cannot add two diffrently shaped arrays: ({self.result.shape}) + ({other.result.shape})")
+    def __sub__(self, other):
+        if(other.result.shape == self.result.shape):
+            if self.amplitude > other.amplitude:
+                A = self.amplitude
+            else:
+                A = other.amplitude
+            if(type(other) == gaussianNoise or type(other) == linearNoise):
+                wave = noise(A, self.time)
+            elif(type(other) == im.jump or type(other) == im.randomImpulse or type(other) == im.singleImpulse):
+                wave = noise(A, self.time)
+            else:
+                wave = w.Wave(A, other.frequency, self.time, other.phase)
+            res = np.zeros((self.result.shape))
+            for i in range(len(res)):
+                res[i][0] = self.result[i][0]
+                res[i][1] = self.result[i][1] - other.result[i][1]
+            wave.result = res
+            return wave
+        else:
+            print(f"Error: cannot sub two diffrently shaped arrays: ({self.result.shape}) - ({other.result.shape})")
+    def __mul__(self, other):
+        if(other.result.shape == self.result.shape):
+            if(type(other) == gaussianNoise or type(other) == linearNoise):
+                wave = noise(self.amplitude * other.amplitude, self.time)
+            elif(type(other) == im.jump or type(other) == im.randomImpulse or type(other) == im.singleImpulse):
+                wave = noise(self.amplitude * other.amplitude, self.time)
+            else:
+                wave = w.Wave(self.amplitude * other.amplitude, other.frequency, self.time, other.phase)
+            res = np.zeros((self.result.shape))
+            for i in range(len(res)):
+                res[i][0] = self.result[i][0]
+                res[i][1] = self.result[i][1] * other.result[i][1]
+            wave.result = res
+            return wave
+    def __truediv__(self, other):
+        if(other.result.shape == self.result.shape):
+            if(type(other) == gaussianNoise or type(other) == linearNoise):
+                wave = noise(self.amplitude / other.amplitude, self.time)
+            elif(type(other) == im.jump or type(other) == im.randomImpulse or type(other) == im.singleImpulse):
+                wave = noise(self.amplitude / other.amplitude, self.time)
+            else:
+                wave = w.Wave(self.amplitude / other.amplitude, other.frequency, self.time, other.phase)
+            res = np.zeros((self.result.shape))
+            for i in range(len(res)):
+                res[i][0] = self.result[i][0]
+                if abs(other.result[i][1]) > 0.2:
+                    res[i][1] = self.result[i][1] / other.result[i][1]
+                else:
+                    res[i][1] = 0
+            wave.result = res
+            return wave
 
 class linearNoise(noise):
     def __init__(self, A, d):

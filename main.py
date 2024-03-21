@@ -37,15 +37,17 @@ elif Type == 9:
     ts = float(input("jump time: "))  
 elif Type == 10:
     A = float(input("Amplitude: "))
-    f = float(input("frequency: "))
     t = float(input("time: "))
-    n1 = float(input("first probe: "))
     ns = float(input("impulse probe: "))
 elif Type == 11:
     A = float(input("Amplitude: "))
-    f = float(input("frequency: "))
     t = float(input("time: "))
-    p = float(input("probability [0.0-1.0]: "))  
+    pr = float(input("probability [0.0-1.0]: "))  
+
+if Type != 0 and Type < 12 and Type > 2:
+    p = int(input("Number of probes: "))
+else:
+    p = 300
 
 wave = None
 
@@ -68,27 +70,24 @@ match Type:
         k = float(input("Coefficient: "))
         wave = w.TriangleWave(A, f, t, d, k)
     case 9:
-        wave = i.jump(A, t, ts)
+        wave = i.jump(A, p, t, ts)
     case 10:
-        wave = i.singleImpulse(A, f, t, ns)
+        wave = i.singleImpulse(A, p, t, ns)
     case 11:
-        wave = i.randomImpulse(A, f, t, p)
+        wave = i.randomImpulse(A, p, t, pr)
     case 0:
-        A = 4
+        A = 0.2
         t = 30
         wave1 = n.gaussianNoise(A, t)
-        wave2 = w.SinWave(5, 0.1, 30, 0.2)
-if Type != 0 and type(wave) != i.singleImpulse and type(wave != i.randomImpulse):
-    p = int(input("Number of probes: "))
-else:
-    p = 300
+        #
+        wave2 = i.singleImpulse(10, p, t, 100)
 print(wave)
-if(type(wave) == i.singleImpulse or type(wave) == i.randomImpulse):
-    values = wave.calculate()
+if(type(wave) == i.singleImpulse or type(wave) == i.randomImpulse or type(wave) == i.jump):
+    values = wave.calculate(p)
 else:
     values1 = wave1.calculate(p)
     values2 = wave2.calculate(p)
-    wave = wave2 / wave1
+    wave = wave1 + wave2
     A = wave.amplitude
     t = wave.time
     values = wave.result

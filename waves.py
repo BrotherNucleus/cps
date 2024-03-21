@@ -34,6 +34,21 @@ class Wave:
             return wave
         else:
             print(f"Error: cannot add two diffrently shaped arrays: ({self.result.shape}) + ({other.result.shape})")
+    def __sub__(self, other):
+        if(other.result.shape == self.result.shape):
+            if self.amplitude > other.amplitude:
+                A = self.amplitude
+            else:
+                A = other.amplitude
+            wave = Wave(A, self.frequency, self.time, self.phase)
+            res = np.zeros((self.result.shape))
+            for i in range(len(res)):
+                res[i][0] = self.result[i][0]
+                res[i][1] = self.result[i][1] - other.result[i][1]
+            wave.result = res
+            return wave
+        else:
+            print(f"Error: cannot sub two diffrently shaped arrays: ({self.result.shape}) - ({other.result.shape})")
     def __mul__(self, other):
         if(other.result.shape == self.result.shape):
             if(type(other) == noise.linearNoise or type(other) == noise.gaussianNoise or self.frequency > other.frequency):
@@ -245,12 +260,7 @@ class SymSquareWave(Wave):
 class TriangleWave(Wave):
     """
     Triangle Wave function - extends Wave \n
-    Triangle Wave function: \n
-    -----------------------
-      /\
-     /  \
-    /    \
-    -----------------------
+    Triangle Wave function acts like a sinmod wave but it uses linear values to look like triangles instead of parabolae \n
     A - amplitude of the wave \n
     f - frequency of the wave \n
     d - time in which the wave will be calculated \n
