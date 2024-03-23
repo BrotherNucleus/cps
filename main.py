@@ -3,6 +3,7 @@ import waves as w
 import graph as g
 import impulse as i
 import noise as n
+import fileManager as f
 
 cam = g.graph()
 
@@ -78,25 +79,30 @@ match Type:
     case 0:
         A = 0.2
         t = 30
-        wave1 = n.gaussianNoise(A, t)
+        wave1 = w.SinWave(2, 0.5, t, 0.2)
         #
-        wave2 = i.singleImpulse(10, p, t, 100)
+        wave2 = n.gaussianNoise(A, t)
 print(wave)
 if(type(wave) == i.singleImpulse or type(wave) == i.randomImpulse or type(wave) == i.jump):
     values = wave.calculate(p)
 else:
     values1 = wave1.calculate(p)
     values2 = wave2.calculate(p)
-    wave = wave2 / wave1
+    wave3 = wave1 + wave2
+    vl = wave3.result
+    wInt = f.FileM(vl, './waves/')
+    wInt.serialize('sin_2_05_30_02')
+
+    val = wInt.load('sin_2_05_30_02.npy')
+    wave = wInt.interpret(val)
+    values = wave.result
     A = wave.amplitude
     t = wave.time
-    values = wave.result
 
-print(wave2.result)
-cam.displayGraph(wave2.result, 10, t)
+print(wave3)
+print(vl)
+cam.displayGraph(vl, wave3.amplitude, wave3.time)
 
-print(wave1.result)
-cam.displayGraph(wave1.result, 10, t)
-
+print(wave)
 print(values)
-cam.displayGraph(values, 10, t)
+cam.displayGraph(values, A, t)
