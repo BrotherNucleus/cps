@@ -87,7 +87,7 @@ if(type(wave) == i.singleImpulse or type(wave) == i.randomImpulse or type(wave) 
 else:
     values1 = wave1.calculate(p)
     values2 = wave2.calculate(p)
-    wave = wave1 + wave2
+    wave = wave2 / wave1
     A = wave.amplitude
     t = wave.time
     values = wave.result
