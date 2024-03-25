@@ -29,24 +29,8 @@ class graph:
     def displayHist(self, result, n):
         plt.style.use('default')
 
-        # make data
-        max = 0
-        min = 0
-        for check in result:
-            if(check[1] >= max):
-                max = check[1]
-            if(check[1] <= min):
-                min = check[1]
-        
-        len = max - min
-        seg = len / (n - 1)
+        data = result[:, [1]]
 
-        values = np.zeros(n)
+        hist = plt.hist(data, n)
 
-        for k in range(n):
-            for check in result:
-                if(check[1] <= min + seg*k and check[1] > min + seg*(k+1)):
-                    values[k] += 1
-        print(min)
-        print(max)
-        print(values)
+        plt.show()

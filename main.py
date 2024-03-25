@@ -4,6 +4,7 @@ import graph as g
 import impulse as i
 import noise as n
 import fileManager as f
+import analitics as a
 
 cam = g.graph()
 
@@ -83,34 +84,17 @@ match Type:
         #
         wave2 = n.gaussianNoise(A, t)
 print(wave)
+
 values1 = wave1.calculate(p)
 values2 = wave2.calculate(p)
-
-cam.displayGraph(values1, wave1.amplitude, wave1.time)
-cam.displayGraph(values2, wave2.amplitude, wave2.time)
-
 wave3 = wave1 + wave2
-
-cam.displayGraph(wave3.result, wave3.amplitude, wave3.time)
-
-# values1 = wave1.calculate(p)
-# values2 = wave2.calculate(p)
-# wave3 = wave1 + wave2
-# vl = wave3.result
-# wInt = f.FileM(vl, './waves/')
-# wInt.serialize('sin_2_05_30_02')
-
-# val = wInt.load('sin_2_05_30_02.npy')
-# wave = wInt.interpret(val)
-# values = wave.result
-# A = wave.amplitude
-# t = wave.time
-
-# print(wave3)
-# print(vl)
-# cam.displayGraph(vl, wave3.amplitude, wave3.time)
-
-# print(wave)
-# print(values)
-# cam.displayGraph(values, A, t)
-# cam.displayHist(values, 5)
+vl = wave3.result
+A = wave1.amplitude
+cam.displayGraph(values1, A, t)
+cam.displayHist(values1, 20)
+an = a.analizer(wave1)
+print(an.mean())
+print(an.meanAbs())
+print(an.rms())
+print(an.variance())
+print(an.power())
