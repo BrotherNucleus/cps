@@ -83,26 +83,34 @@ match Type:
         #
         wave2 = n.gaussianNoise(A, t)
 print(wave)
-if(type(wave) == i.singleImpulse or type(wave) == i.randomImpulse or type(wave) == i.jump):
-    values = wave.calculate(p)
-else:
-    values1 = wave1.calculate(p)
-    values2 = wave2.calculate(p)
-    wave3 = wave1 + wave2
-    vl = wave3.result
-    wInt = f.FileM(vl, './waves/')
-    wInt.serialize('sin_2_05_30_02')
+values1 = wave1.calculate(p)
+values2 = wave2.calculate(p)
 
-    val = wInt.load('sin_2_05_30_02.npy')
-    wave = wInt.interpret(val)
-    values = wave.result
-    A = wave.amplitude
-    t = wave.time
+cam.displayGraph(values1, wave1.amplitude, wave1.time)
+cam.displayGraph(values2, wave2.amplitude, wave2.time)
 
-print(wave3)
-print(vl)
-cam.displayGraph(vl, wave3.amplitude, wave3.time)
+wave3 = wave1 + wave2
 
-print(wave)
-print(values)
-cam.displayGraph(values, A, t)
+cam.displayGraph(wave3.result, wave3.amplitude, wave3.time)
+
+# values1 = wave1.calculate(p)
+# values2 = wave2.calculate(p)
+# wave3 = wave1 + wave2
+# vl = wave3.result
+# wInt = f.FileM(vl, './waves/')
+# wInt.serialize('sin_2_05_30_02')
+
+# val = wInt.load('sin_2_05_30_02.npy')
+# wave = wInt.interpret(val)
+# values = wave.result
+# A = wave.amplitude
+# t = wave.time
+
+# print(wave3)
+# print(vl)
+# cam.displayGraph(vl, wave3.amplitude, wave3.time)
+
+# print(wave)
+# print(values)
+# cam.displayGraph(values, A, t)
+# cam.displayHist(values, 5)

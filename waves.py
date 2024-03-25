@@ -265,6 +265,7 @@ class TriangleWave(Wave):
     f - frequency of the wave \n
     d - time in which the wave will be calculated \n
     phi - phase change of the function \n
+    k - triangle coefficient, how angled the triangle is \n
     """
     def __init__(self, A, f, d, phi, k):
         self.coeff = k
