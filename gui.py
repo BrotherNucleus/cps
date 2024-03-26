@@ -4,6 +4,10 @@ matplotlib.use('Qt5Agg')
 
 import wx
 
+
+class WaveListPanel(wx.Panel):
+    def __init__(self, parent):
+        super().__init__(parent)
 class myFrame(wx.Frame):
     def __init__(self):
         super().__init__(parent=None, title='Hello World')
