@@ -2,16 +2,18 @@ import sys
 import matplotlib
 matplotlib.use('Qt5Agg')
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+import wx
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
+class myFrame(wx.Frame):
+    def __init__(self):
+        super().__init__(parent=None, title='Hello World')
+        panel = wx.Panel(self)
 
+        self.text_ctrl = wx.TextCtrl(panel, pos=(5, 5))
+        my_bttn = wx.Button(panel, label='Press Me', pos=(5,55))
 
-class MplCanvas(FigureCanvasQTAgg):
+        self.Show()
 
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        super(MplCanvas, self).__init__(fig)
-
+app = wx.App()
+frame =myFrame()
+app.MainLoop()
