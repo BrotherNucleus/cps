@@ -4,6 +4,14 @@ import waves as w
 import impulse as im
 
 class noise:
+    '''
+    Default noise function \n
+    A - amplitude of the impulse\n
+    d - time\n
+    \n
+    This function is only used for inheritance do not use it for anything else\n
+    Note that no derivative of this function will have an additional argument(s)\n
+    '''
     def __init__(self, A, d):
         self.amplitude = A
         self.time = d
@@ -79,6 +87,13 @@ class noise:
             return wave
 
 class linearNoise(noise):
+    '''
+    linear noise - extends noise \n
+    A - amplitude of the impulse\n
+    d - time\n
+    \n
+    This class simulates linear noise with a specified amplitude over a specified time\n
+    '''
     def __init__(self, A, d):
         super().__init__(A, d)
     def __str__(self):
@@ -86,6 +101,15 @@ class linearNoise(noise):
     def random(self):
         return random.uniform(-self.amplitude, self.amplitude)
     def calculate(self, p):
+        '''
+        this function calculates the values for the noise in format\n
+        [[time, value],\n
+         [time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN-1, valueN-1]]\n
+        this function takes an argument p which corresponds to number of probes\n
+        '''
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):
@@ -95,9 +119,25 @@ class linearNoise(noise):
         return result
     
 class gaussianNoise(noise):
+    '''
+    gaussian noise - extends noise \n
+    A - amplitude of the impulse\n
+    d - time\n
+    \n
+    This class simulates gaussian noise (normal distribusion) with a specified amplitude over a specified time\n
+    '''
     def __init__(self, A, d):
         super().__init__(A, d)
     def calculate(self, p):
+        '''
+        this function calculates the values for the noise in format\n
+        [[time, value],\n
+         [time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN-1, valueN-1]]\n
+        this function takes an argument p which corresponds to number of probes\n
+        '''
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):

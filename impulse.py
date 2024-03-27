@@ -4,6 +4,16 @@ import waves as w
 import noise as n
 
 class impulse:
+    '''
+    Default impulse function \n
+    A - amplitude of the impulse\n
+    p - number of probes\n
+    d - time\n
+    \n
+    This function is only used for inheritance do not use it for anything else\n
+    Note that every derivative of this function will have an additional argument
+    depending on the usage \n
+    '''
     def __init__(self, A, p, d):
         self.amplitude = A
         self.frequency = p / d
@@ -81,12 +91,33 @@ class impulse:
             return wave
 
 class singleImpulse(impulse):
+    '''
+    single Impulse - extends impulse\n
+    A - amplitude\n
+    pr - number of probes\n
+    d - time\n
+    ns - probe on which the impulse happens\n
+    class that simulates a singular impulse on a signal which otherwise has constant value of 0\n
+    '''
     def __init__(self, A, pr, d, ns):
         self.imProbe = ns
         super().__init__(A, pr, d)
     def __str__(self):
         return super().__str__() + f'impulse Probe = {self.imProbe}; '
     def calculate(self, redundant):
+        '''
+        this function calculates the values for the impulse in format\n
+        [[time, value],\n
+         [time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN-1, valueN-1]]\n
+        this function takes an argument "redundant"\n
+        it is used so that whenever you're calling this function while using wave or noise class 
+        there is no issue with the usual format of "calculate(p)"\n
+        this is NOT a good coding practice, in fact I should be crucified for it\n
+        by no means do that ever in your programs\n
+        '''
         n = self.probeNum
         T = 1 / self.frequency
         ret = np.zeros([n, 2])
@@ -98,6 +129,14 @@ class singleImpulse(impulse):
         return ret
     
 class randomImpulse(impulse):
+    '''
+    random Impulse - extends impulse\n
+    A - amplitude\n
+    pr - number of probes\n
+    d - time\n
+    p - probability [0-1] of a probe being an impulse probe\n
+    class that simulates random occuring impulse on a signal which otherwise has constant value of 0\n
+    '''
     def __init__(self, A, pr, d, p):
         self.chance = p
         super().__init__(A, pr, d)
@@ -110,6 +149,19 @@ class randomImpulse(impulse):
         else:
             return True
     def calculate(self, redundant):
+        '''
+        this function calculates the values for the impulse in format\n
+        [[time, value],\n
+         [time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN-1, valueN-1]]\n
+        this function takes an argument "redundant"\n
+        it is used so that whenever you're calling this function while using wave or noise class 
+        there is no issue with the usual format of "calculate(p)"\n
+        this is NOT a good coding practice, in fact I should be crucified for it\n
+        by no means do that ever in your programs\n
+        '''
         n = self.probeNum
         T = 1 / self.frequency
         ret = np.zeros([n, 2])
@@ -121,12 +173,33 @@ class randomImpulse(impulse):
         return ret
     
 class jump(impulse):
+    '''
+    jump - extends impulse\n
+    A - amplitude\n
+    p - number of probes\n
+    d - time\n
+    ts - probability [0-1] of a probe being an impulse probe\n
+    class that simulates a jump from value of 0 to constant value of amplitude after a specified time\n
+    '''
     def __init__(self, A, p, d, ts):
         self.jumpTime = ts
         super().__init__(A, p, d)
     def __str__(self):
         return super().__str__() + f'jump time: {self.jumpTime}'
     def calculate(self, redundant):
+        '''
+        this function calculates the values for the impulse in format\n
+        [[time, value],\n
+         [time1, value1],\n
+         [time2, value2],\n
+         ...\n
+         [timeN-1, valueN-1]]\n
+        this function takes an argument "redundant"\n
+        it is used so that whenever you're calling this function while using wave or noise class 
+        there is no issue with the usual format of "calculate(p)"\n
+        this is NOT a good coding practice, in fact I should be crucified for it\n
+        by no means do that ever in your programs\n
+        '''
         p = self.probeNum
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))

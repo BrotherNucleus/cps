@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToolbar
+import waves as w
+import impulse as i
+import noise as n
 
 import wx
 
@@ -105,17 +108,17 @@ class MyFrame(wx.Frame):
         # Plot panels
         self.plot_panel_tl = PlotPanel(self.panel, size=(6, 4))
         self.plot_panel_tr = PlotPanel(self.panel, size=(6, 4))
-        self.plot_panel_bl = PlotPanel(self.panel, size=(6, 4))
-        self.plot_panel_br = PlotPanel(self.panel, size=(6, 4))
+        self.plot_panel_bl = PlotPanel(self.panel, size=(6, 3))
+        self.plot_panel_br = wx.StaticText(self.panel, label='Choose Option:')
 
         # Add plot panels to right sizer
         self.right_sizer_top = wx.BoxSizer(wx.HORIZONTAL)
         self.right_sizer_bottom = wx.BoxSizer(wx.HORIZONTAL)
         
-        self.right_sizer_top.Add(self.plot_panel_tl, 0, wx.EXPAND | wx.LEFT, 5)
-        self.right_sizer_top.Add(self.plot_panel_tr, 0, wx.EXPAND | wx.LEFT, 5)
-        self.right_sizer_bottom.Add(self.plot_panel_bl, 0, wx.EXPAND | wx.LEFT, 5)
-        self.right_sizer_bottom.Add(self.plot_panel_br, 0, wx.EXPAND | wx.LEFT, 5)
+        self.right_sizer_top.Add(self.plot_panel_tl, 0, wx.LEFT, 5)
+        self.right_sizer_top.Add(self.plot_panel_tr, 0, wx.LEFT, 5)
+        self.right_sizer_bottom.Add(self.plot_panel_bl, 0, wx.LEFT, 5)
+        self.right_sizer_bottom.Add(self.plot_panel_br, 0, wx.LEFT, 5)
 
         self.right_sizer.Add(self.right_sizer_top, 1, wx.EXPAND)
         self.right_sizer.Add(self.right_sizer_bottom, 1, wx.EXPAND)
@@ -159,32 +162,71 @@ class MyFrame(wx.Frame):
             self.input5_label.SetLabel(string)
         elif choice1 == 'Impulse':
             self.input1_label.SetLabel('Amplitude:')
-            self.input2_label.SetLabel('Time')
+            self.input3_label.SetLabel('Time')
             if choice2 == 'Single':
-                self.input3_label.SetLabel('Impulse Probe: ')
+                self.input2_label.SetLabel('Impulse Probe: ')
             elif choice2 == 'Random':
-                self.input3_label.SetLabel('Probability of Impulse: ')
+                self.input2_label.SetLabel('Probability of Impulse: ')
             elif choice2 == 'Jump':
-                self.input3_label.SetLabel('Time of jump: ')
+                self.input2_label.SetLabel('Time of jump: ')
             else:
                 self.input3_label.SetLabel('')
             self.input4_label.SetLabel('')
             self.input5_label.SetLabel('')
         elif choice1 == 'Noise':
             self.input1_label.SetLabel('Amplitude:')
-            self.input2_label.SetLabel('Time:')
-            self.input3_label.SetLabel('')
+            self.input3_label.SetLabel('Time:')
+            self.input2_label.SetLabel('')
             self.input4_label.SetLabel('')
             self.input5_label.SetLabel('')
         self.input6_label.SetLabel('Probe Number: ')
 
+    def choose_func(self, name, A, f, t, phi, k, pr):
+        match(name):
+            case 'Sine':
+                return w.SinWave(A, f, t, phi)
+            case 'One sided Sine':
+                return w.SinHalfWave(A, f, t, phi)
+            case 'Two sided Sine':
+                return w.SinModWave(A, f, t, phi)
+            case 'Square':
+                return w.SquareWave(A, f, t, phi)
+            case 'Symmetrical Square':
+                return w.SymSquareWave(A, f, t, phi)
+            case 'Triangle':
+                return w.TriangleWave(A, f, t, phi, k)
+            case 'Single':
+                return i.singleImpulse(A, pr, t, f)
+            case 'Random' :
+                return i.randomImpulse(A, pr, t, f)
+            case 'Jump' :
+                return i.jump(A, pr, t, f)
+            case 'Gaussian':
+                return n.gaussianNoise(A, t)
+            case 'Linear':
+                return n.linearNoise(A, t)
+
     def on_generate(self, event):
         # Generate plot data
-        x = np.linspace(0, 10, 1000)
-        freq = float(self.input1.GetValue())
-        amp = float(self.input2.GetValue())
-        phase = float(self.input3.GetValue())
-        y = amp * np.sin(2 * np.pi * freq * x + phase)
+        if self.input2.GetValue() == '':
+            freq = None
+        else:
+            freq = float(self.input2.GetValue())
+        amp = float(self.input1.GetValue())
+        if self.input4.GetValue() == '':
+            phase = None
+        else:
+            phase = float(self.input4.GetValue())
+        time = float(self.input3.GetValue())
+        if(self.choice2.GetStringSelection() == 'Triangle'):
+            coeff = float(self.input5.GetValue())
+        else:
+            coeff = None
+        probes = int(self.input6.GetValue())
+        wave = self.choose_func(self.choice2.GetStringSelection(), amp, freq, time, phase, coeff, probes)
+        res = wave.calculate(probes)
+        x = res[:,[0]]
+        y = res[:,[1]]
 
         # Plot data on all plot panels
         for plot_panel in [self.plot_panel_tl, self.plot_panel_tr, self.plot_panel_bl, self.plot_panel_br]:
