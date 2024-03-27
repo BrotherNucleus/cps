@@ -229,7 +229,7 @@ class MyFrame(wx.Frame):
         y = res[:,[1]]
 
         # Plot data on all plot panels
-        for plot_panel in [self.plot_panel_tl, self.plot_panel_tr, self.plot_panel_bl, self.plot_panel_br]:
+        for plot_panel in [self.plot_panel_tl, self.plot_panel_tr]:
             plot_panel.ax.clear()
             plot_panel.ax.plot(x, y)
             plot_panel.ax.set_xlabel('Time')
@@ -237,6 +237,10 @@ class MyFrame(wx.Frame):
             plot_panel.ax.set_title('Generated Plot')
 
             plot_panel.canvas.draw()
+        
+        self.plot_panel_bl.ax.clear()
+        self.plot_panel_bl.ax = plt.hist(y, 20)
+        self.plot_panel_bl.canvas.draw()
 
 if __name__ == '__main__':
     app = wx.App()
