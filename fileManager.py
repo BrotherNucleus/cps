@@ -2,13 +2,12 @@ import numpy as np
 import waves as w
 
 class FileM:
-    def __init__(self, table, p):
-        self.value = table
+    def __init__(self, p):
         self.path = p
     def serialize(self, name):
-        np.save(self.path + name, self.value)
+        np.save(self.path + '/' + name, self.value)
     def load(self, name):
-        return np.load(self.path + name)
+        return np.load(self.path + '/' + name)
     def interpret(self, arr):
         A = 0
         for v in arr:

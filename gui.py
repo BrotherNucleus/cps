@@ -7,6 +7,8 @@ import waves as w
 import impulse as i
 import noise as n
 import analitics as a
+import fileManager as FM
+import os
 
 import wx
 
@@ -27,7 +29,7 @@ class MyFrame(wx.Frame):
         self.SetMinSize((1920, 1080))
         self.panel = wx.Panel(self)
         self.create_widgets()
-        
+        self.currWave = None
         self.Show()
     
     def create_widgets(self):
@@ -39,6 +41,8 @@ class MyFrame(wx.Frame):
         # Save and Load buttons
         btn_save = wx.Button(self.panel, label='Save')
         btn_load = wx.Button(self.panel, label='Load')
+        btn_save.Bind(wx.EVT_BUTTON, self.on_save)
+        btn_load.Bind(wx.EVT_BUTTON, self.on_load)
         
         # Adjusting button positions
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -59,22 +63,22 @@ class MyFrame(wx.Frame):
         self.choice2.Bind(wx.EVT_CHOICE, self.on_choice2)
         
         # Input spaces
-        self.input1_label = wx.StaticText(self.panel, label='Input 1:')
+        self.input1_label = wx.StaticText(self.panel, label='Empty:')
         self.input1 = wx.TextCtrl(self.panel, size=(150, -1))
         
-        self.input2_label = wx.StaticText(self.panel, label='Input 2:')
+        self.input2_label = wx.StaticText(self.panel, label='Empty:')
         self.input2 = wx.TextCtrl(self.panel, size=(150, -1))
         
-        self.input3_label = wx.StaticText(self.panel, label='Input 3:')
+        self.input3_label = wx.StaticText(self.panel, label='Empty:')
         self.input3 = wx.TextCtrl(self.panel, size=(150, -1))
 
-        self.input4_label = wx.StaticText(self.panel, label='Input 3:')
+        self.input4_label = wx.StaticText(self.panel, label='Empty:')
         self.input4 = wx.TextCtrl(self.panel, size=(150, -1))
 
-        self.input5_label = wx.StaticText(self.panel, label='Input 3:')
+        self.input5_label = wx.StaticText(self.panel, label='Empty:')
         self.input5 = wx.TextCtrl(self.panel, size=(150, -1))
 
-        self.input6_label = wx.StaticText(self.panel, label='Input 3:')
+        self.input6_label = wx.StaticText(self.panel, label='Empty:')
         self.input6 = wx.TextCtrl(self.panel, size=(150, -1))
 
         btn_generate = wx.Button(self.panel, label='Generate')
@@ -128,7 +132,7 @@ class MyFrame(wx.Frame):
         self.sizer.Add(self.right_sizer, 1, wx.EXPAND)
 
         self.panel.SetSizer(self.sizer)
-    
+
     def on_choice1(self, event):
         choice1 = self.choice1.GetStringSelection()
         if choice1 == 'Wave':
@@ -207,29 +211,11 @@ class MyFrame(wx.Frame):
             case 'Linear':
                 return n.linearNoise(A, t)
 
-    def on_generate(self, event):
-        # Generate plot data
-        if self.input2.GetValue() == '':
-            freq = None
-        else:
-            freq = float(self.input2.GetValue())
-        amp = float(self.input1.GetValue())
-        if self.input4.GetValue() == '':
-            phase = None
-        else:
-            phase = float(self.input4.GetValue())
-        time = float(self.input3.GetValue())
-        if(self.choice2.GetStringSelection() == 'Triangle'):
-            coeff = float(self.input5.GetValue())
-        else:
-            coeff = None
-        probes = int(self.input6.GetValue())
-        wave = self.choose_func(self.choice2.GetStringSelection(), amp, freq, time, phase, coeff, probes)
-        res = wave.calculate(probes)
+    def show_plots(self, res):
         x = res[:,[0]]
         y = res[:,[1]]
 
-        anl = a.analizer(wave)
+        anl = a.analizer(self.currWave)
         # Calculate statistics
         mean = anl.mean()
         absMean = anl.meanAbs()
@@ -257,7 +243,91 @@ class MyFrame(wx.Frame):
         self.plot_panel_bl.ax.hist(y, 20)
         self.plot_panel_bl.canvas.draw()
 
+    def on_generate(self, event):
+        # Generate plot data
+        if self.input2.GetValue() == '':
+            freq = None
+        else:
+            freq = float(self.input2.GetValue())
+        amp = float(self.input1.GetValue())
+        if self.input4.GetValue() == '':
+            phase = None
+        else:
+            phase = float(self.input4.GetValue())
+        time = float(self.input3.GetValue())
+        if(self.choice2.GetStringSelection() == 'Triangle'):
+            coeff = float(self.input5.GetValue())
+        else:
+            coeff = None
+        probes = int(self.input6.GetValue())
+        wave = self.choose_func(self.choice2.GetStringSelection(), amp, freq, time, phase, coeff, probes)
+        self.currWave = wave
+        res = wave.calculate(probes)
+        self.show_plots(res)
+
+
+    def on_save(self, event):
+        # Open file dialog for saving
+        wildcard = "NumPy files (*.npy)|*.npy|All files (*.*)|*.*"
+        dlg = wx.FileDialog(self, "Choose a file", wildcard=wildcard, style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+
+        cwd = os.getcwd()
+
+        default_dir = cwd + "/waves"  # Replace this with your desired default directory
+        dlg.SetDirectory(default_dir)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            file_name = dlg.GetFilename()  # Get the name of the file
+            folder_path = dlg.GetDirectory()  # Get the folder path
+            fileM = FM.FileM(folder_path)
+
+            fileM.serialize(file_name)
+        dlg.Destroy()
+
+    def on_load(self, event):
+        # Open file dialog for loading
+        wildcard = "NumPy files (*.npy)|*.npy|All files (*.*)|*.*"
+        dlg = wx.FileDialog(self, "Choose a file", wildcard=wildcard, style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+
+        cwd = os.getcwd()
+
+        default_dir = cwd + "/waves"  # Replace this with your desired default directory
+        dlg.SetDirectory(default_dir)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            file_name = dlg.GetFilename()  # Get the name of the file
+            folder_path = dlg.GetDirectory()  # Get the folder path
+
+            fileM = FM.FileM(folder_path)
+            res = fileM.load(file_name)
+            self.currWave = fileM.interpret(res)
+
+        dlg.Destroy()
+
+        self.show_plots(res)
+
+        choices2 = ['Sine', 'One sided Sine', 'Two sided Sine', 'Square', 'Symmetrical Square', 'Triangle']
+
+        self.choice1.SetSelection(0)
+        self.choice2.SetItems(choices2)
+        self.choice2.SetSelection(0)
+
+        self.input1_label.SetLabel('Amplitude:')
+        self.input2_label.SetLabel('Frequency:')
+        self.input3_label.SetLabel('Time:')
+        self.input4_label.SetLabel('Phase:')
+        self.input5_label.SetLabel('')
+        self.input6_label.SetLabel('Probe Number: ')
+
+        self.input1.SetValue(str(self.currWave.amplitude))
+        self.input2.SetValue(str(self.currWave.frequency))
+        self.input3.SetValue(str(self.currWave.time))
+        self.input4.SetValue(str(self.currWave.phase))
+        self.input6.SetValue(str(self.currWave.probeNum))
+
+        
+
 if __name__ == '__main__':
     app = wx.App()
-    frame = MyFrame(None, title='GUI Example')
+    frame = MyFrame(None, title='Signaler v1.0')
     app.MainLoop()
