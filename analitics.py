@@ -17,6 +17,6 @@ class analizer:
         for val in self.values:
             var += (val - m)**2
         var /= len(self.values)
-        return val
+        return val[0]
     def power(self):
         return np.mean(self.values**2)

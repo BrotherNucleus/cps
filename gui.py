@@ -6,6 +6,7 @@ from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToo
 import waves as w
 import impulse as i
 import noise as n
+import analitics as a
 
 import wx
 
@@ -109,7 +110,7 @@ class MyFrame(wx.Frame):
         self.plot_panel_tl = PlotPanel(self.panel, size=(6, 4))
         self.plot_panel_tr = PlotPanel(self.panel, size=(6, 4))
         self.plot_panel_bl = PlotPanel(self.panel, size=(6, 3))
-        self.plot_panel_br = wx.StaticText(self.panel, label='Choose Option:')
+        self.plot_panel_br = PlotPanel(self.panel, size=(6, 3))
 
         # Add plot panels to right sizer
         self.right_sizer_top = wx.BoxSizer(wx.HORIZONTAL)
@@ -228,6 +229,20 @@ class MyFrame(wx.Frame):
         x = res[:,[0]]
         y = res[:,[1]]
 
+        anl = a.analizer(wave)
+        # Calculate statistics
+        mean = anl.mean()
+        absMean = anl.meanAbs()
+        stdDev = anl.rms()
+        pow = anl.power()
+        var = anl.variance()
+
+        # Display statistics as text on bottom right panel
+        self.plot_panel_br.ax.clear()
+        text = f"Mean: {mean:.2f}\nAbsolute Mean: {absMean:.2f}\nStd Dev: {stdDev:.2f}\nVariance: {var:.2f}\nPower: {pow:.2f}"
+        self.plot_panel_br.ax.text(0.5, 0.5, text, ha='center', va='center', fontsize=12)
+        self.plot_panel_br.ax.axis('off')
+        self.plot_panel_br.canvas.draw()
         # Plot data on all plot panels
         for plot_panel in [self.plot_panel_tl, self.plot_panel_tr]:
             plot_panel.ax.clear()
@@ -237,9 +252,9 @@ class MyFrame(wx.Frame):
             plot_panel.ax.set_title('Generated Plot')
 
             plot_panel.canvas.draw()
-        
+
         self.plot_panel_bl.ax.clear()
-        self.plot_panel_bl.ax = plt.hist(y, 20)
+        self.plot_panel_bl.ax.hist(y, 20)
         self.plot_panel_bl.canvas.draw()
 
 if __name__ == '__main__':
