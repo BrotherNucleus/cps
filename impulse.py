@@ -14,7 +14,7 @@ class impulse:
     Note that every derivative of this function will have an additional argument
     depending on the usage \n
     '''
-    def __init__(self, A, p, d):
+    def __init__(self, A, p, d, id):
         self.amplitude = A
         self.frequency = p / d
         self.probeNum = p
@@ -25,11 +25,11 @@ class impulse:
     def __add__(self, other):
         if(other.result.shape == self.result.shape):
             if(type(other) == n.gaussianNoise or type(other) == n.linearNoise):
-                wave = n.noise(self.amplitude + other.amplitude, self.time)
+                wave = n.noise(self.amplitude + other.amplitude, self.time, 0)
             elif(type(other) == jump or type(other) == randomImpulse or type(other) == singleImpulse):
-                wave = jump(self.amplitude + other.amplitude, self.probeNum, self.time)
+                wave = impulse(self.amplitude + other.amplitude, self.probeNum, self.time, 0)
             else:
-                wave = w.Wave(self.amplitude + other.amplitude, other.frequency, self.time, other.phase)
+                wave = w.Wave(self.amplitude + other.amplitude, other.frequency, self.time, other.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -44,12 +44,12 @@ class impulse:
                 A = self.amplitude
             else:
                 A = other.amplitude
-            if(type(other) == n.gaussianNoise or type(other) == n.linearNoise):
+            if(type(other) == n.gaussianNoise or type(other) == n.linearNoise, 0):
                 wave = n.noise(A, self.time)
             elif(type(other) == jump or type(other) == randomImpulse or type(other) == singleImpulse):
-                wave = jump(A, self.probeNum, self.time)
+                wave = impulse(A, self.probeNum, self.time, 0)
             else:
-                wave = w.Wave(A, other.frequency, self.time, other.phase)
+                wave = w.Wave(A, other.frequency, self.time, other.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -61,11 +61,11 @@ class impulse:
     def __mul__(self, other):
         if(other.result.shape == self.result.shape):
             if(type(other) == n.gaussianNoise or type(other) == n.linearNoise):
-                wave = n.noise(self.amplitude * other.amplitude, self.time)
+                wave = n.noise(self.amplitude * other.amplitude, self.time, 0)
             elif(type(other) == jump or type(other) == randomImpulse or type(other) == singleImpulse):
-                wave = jump(self.amplitude * other.amplitude, self.probeNum, self.time)
+                wave = impulse(self.amplitude * other.amplitude, self.probeNum, self.time, 0)
             else:
-                wave = w.Wave(self.amplitude * other.amplitude, other.frequency, self.time, other.phase)
+                wave = w.Wave(self.amplitude * other.amplitude, other.frequency, self.time, other.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -75,11 +75,11 @@ class impulse:
     def __truediv__(self, other):
         if(other.result.shape == self.result.shape):
             if(type(other) == n.gaussianNoise or type(other) == n.linearNoise):
-                wave = n.noise(self.amplitude / other.amplitude, self.time)
+                wave = n.noise(self.amplitude / other.amplitude, self.time, 0)
             elif(type(other) == jump or type(other) == randomImpulse or type(other) == singleImpulse):
-                wave = jump(self.amplitude / other.amplitude, self.probeNum, self.time)
+                wave = impulse(self.amplitude / other.amplitude, self.probeNum, self.time, 0)
             else:
-                wave = w.Wave(self.amplitude / other.amplitude, other.frequency, self.time, other.phase)
+                wave = w.Wave(self.amplitude / other.amplitude, other.frequency, self.time, other.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -99,9 +99,9 @@ class singleImpulse(impulse):
     ns - probe on which the impulse happens\n
     class that simulates a singular impulse on a signal which otherwise has constant value of 0\n
     '''
-    def __init__(self, A, pr, d, ns):
+    def __init__(self, A, pr, d, ns, id):
         self.imProbe = ns
-        super().__init__(A, pr, d)
+        super().__init__(A, pr, d, id)
     def __str__(self):
         return super().__str__() + f'impulse Probe = {self.imProbe}; '
     def calculate(self, redundant):
@@ -137,9 +137,9 @@ class randomImpulse(impulse):
     p - probability [0-1] of a probe being an impulse probe\n
     class that simulates random occuring impulse on a signal which otherwise has constant value of 0\n
     '''
-    def __init__(self, A, pr, d, p):
+    def __init__(self, A, pr, d, p, id):
         self.chance = p
-        super().__init__(A, pr, d)
+        super().__init__(A, pr, d, id)
     def __str__(self):
         return super().__str__() + f'probability of an impulse: {self.chance}'
     def random(self):
@@ -181,9 +181,9 @@ class jump(impulse):
     ts - probability [0-1] of a probe being an impulse probe\n
     class that simulates a jump from value of 0 to constant value of amplitude after a specified time\n
     '''
-    def __init__(self, A, p, d, ts):
+    def __init__(self, A, p, d, ts, id):
         self.jumpTime = ts
-        super().__init__(A, p, d)
+        super().__init__(A, p, d, id)
     def __str__(self):
         return super().__str__() + f'jump time: {self.jumpTime}'
     def calculate(self, redundant):

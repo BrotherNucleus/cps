@@ -12,7 +12,7 @@ class noise:
     This function is only used for inheritance do not use it for anything else\n
     Note that no derivative of this function will have an additional argument(s)\n
     '''
-    def __init__(self, A, d):
+    def __init__(self, A, d, id):
         self.amplitude = A
         self.time = d
         self.result = None
@@ -21,11 +21,11 @@ class noise:
     def __add__(self, other):
         if(other.result.shape == self.result.shape):
             if(type(other) == gaussianNoise or type(other) == linearNoise):
-                wave = noise(self.amplitude + other.amplitude, self.time)
+                wave = noise(self.amplitude + other.amplitude, self.time, 0)
             elif(type(other) == im.jump or type(other) == im.randomImpulse or type(other) == im.singleImpulse):
-                wave = noise(self.amplitude + other.amplitude, self.time)
+                wave = noise(self.amplitude + other.amplitude, self.time, 0)
             else:
-                wave = w.Wave(self.amplitude + other.amplitude, other.frequency, self.time, other.phase)
+                wave = w.Wave(self.amplitude + other.amplitude, other.frequency, self.time, other.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -41,11 +41,11 @@ class noise:
             else:
                 A = other.amplitude
             if(type(other) == gaussianNoise or type(other) == linearNoise):
-                wave = noise(A, self.time)
+                wave = noise(A, self.time, 0)
             elif(type(other) == im.jump or type(other) == im.randomImpulse or type(other) == im.singleImpulse):
-                wave = noise(A, self.time)
+                wave = noise(A, self.time, 0)
             else:
-                wave = w.Wave(A, other.frequency, self.time, other.phase)
+                wave = w.Wave(A, other.frequency, self.time, other.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -57,11 +57,11 @@ class noise:
     def __mul__(self, other):
         if(other.result.shape == self.result.shape):
             if(type(other) == gaussianNoise or type(other) == linearNoise):
-                wave = noise(self.amplitude * other.amplitude, self.time)
+                wave = noise(self.amplitude * other.amplitude, self.time, 0)
             elif(type(other) == im.jump or type(other) == im.randomImpulse or type(other) == im.singleImpulse):
-                wave = noise(self.amplitude * other.amplitude, self.time)
+                wave = noise(self.amplitude * other.amplitude, self.time, 0)
             else:
-                wave = w.Wave(self.amplitude * other.amplitude, other.frequency, self.time, other.phase)
+                wave = w.Wave(self.amplitude * other.amplitude, other.frequency, self.time, other.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -71,11 +71,11 @@ class noise:
     def __truediv__(self, other):
         if(other.result.shape == self.result.shape):
             if(type(other) == gaussianNoise or type(other) == linearNoise):
-                wave = noise(self.amplitude / other.amplitude, self.time)
+                wave = noise(self.amplitude / other.amplitude, self.time, 0)
             elif(type(other) == im.jump or type(other) == im.randomImpulse or type(other) == im.singleImpulse):
-                wave = noise(self.amplitude / other.amplitude, self.time)
+                wave = noise(self.amplitude / other.amplitude, self.time, 0)
             else:
-                wave = w.Wave(self.amplitude / other.amplitude, other.frequency, self.time, other.phase)
+                wave = w.Wave(self.amplitude / other.amplitude, other.frequency, self.time, other.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -94,8 +94,8 @@ class linearNoise(noise):
     \n
     This class simulates linear noise with a specified amplitude over a specified time\n
     '''
-    def __init__(self, A, d):
-        super().__init__(A, d)
+    def __init__(self, A, d, id):
+        super().__init__(A, d, id)
     def __str__(self):
         return super().__str__()
     def random(self):
@@ -126,8 +126,8 @@ class gaussianNoise(noise):
     \n
     This class simulates gaussian noise (normal distribusion) with a specified amplitude over a specified time\n
     '''
-    def __init__(self, A, d):
-        super().__init__(A, d)
+    def __init__(self, A, d, id):
+        super().__init__(A, d, id)
     def calculate(self, p):
         '''
         this function calculates the values for the noise in format\n

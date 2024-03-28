@@ -14,18 +14,19 @@ class Wave:
 
     You can see this basic wave function be used as a way to see the functions created by division, multiplication or addition of two waves or wave and impluse/noise.
     """
-    def __init__(self, A, f, d, phi):
+    def __init__(self, A, f, d, phi, id):
         self.amplitude = A
         self.frequency = f
         self.time = d
         self.phase = phi
         self.result = None
         self.probeNum = 0
+        self.id = id
     def __str__(self):
         return f'A = {self.amplitude}, freq = {self.frequency}, phi = {self.phase}'
     def __add__(self, other):
         if(other.result.shape == self.result.shape):
-            wave = Wave(self.amplitude + other.amplitude, self.frequency, self.time, self.phase)
+            wave = Wave(self.amplitude + other.amplitude, self.frequency, self.time, self.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -40,7 +41,7 @@ class Wave:
                 A = self.amplitude
             else:
                 A = other.amplitude
-            wave = Wave(A, self.frequency, self.time, self.phase)
+            wave = Wave(A, self.frequency, self.time, self.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -56,7 +57,7 @@ class Wave:
             else:
                 f = other.frequency
             
-            wave = Wave(self.amplitude*other.amplitude, f, self.time, self.phase)
+            wave = Wave(self.amplitude*other.amplitude, f, self.time, self.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -70,7 +71,7 @@ class Wave:
             else:
                 f = other.frequency
             
-            wave = Wave(self.amplitude*other.amplitude, f, self.time, self.phase)
+            wave = Wave(self.amplitude*other.amplitude, f, self.time, self.phase, 0)
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -90,8 +91,8 @@ class SinWave(Wave):
     d - time in which the wave will be calculated \n
     phi - phase change of the function \n
     """
-    def __init__(self, A, f, d, phi):
-        super().__init__(A, f, d, phi)
+    def __init__(self, A, f, d, phi, id):
+        super().__init__(A, f, d, phi, id)
     def calculate(self, p):
         """
         function used to calculate values of a wave \n
@@ -126,8 +127,8 @@ class SinHalfWave(Wave):
     d - time in which the wave will be calculated \n
     phi - phase change of the function \n
     """
-    def __init__(self, A, f, d, phi):
-        super().__init__(A, f, d, phi)
+    def __init__(self, A, f, d, phi, id):
+        super().__init__(A, f, d, phi, id)
     def calculate(self, p):
         """
         function used to calculate values of a wave \n
@@ -162,8 +163,8 @@ class SinModWave(Wave):
     d - time in which the wave will be calculated \n
     phi - phase change of the function \n
     """
-    def __init__(self, A, f, d, phi):
-        super().__init__(A, f, d, phi)
+    def __init__(self, A, f, d, phi, id):
+        super().__init__(A, f, d, phi, id)
     def calculate(self, p):
         """
         function used to calculate values of a wave \n
@@ -196,8 +197,8 @@ class SquareWave(Wave):
     d - time in which the wave will be calculated \n
     phi - phase change of the function \n
     """
-    def __init__(self, A, f, d, phi):
-        super().__init__(A, f, d, phi)
+    def __init__(self, A, f, d, phi, id):
+        super().__init__(A, f, d, phi, id)
     def calculate(self, p):
         """
         function used to calculate values of a wave \n
@@ -232,8 +233,8 @@ class SymSquareWave(Wave):
     d - time in which the wave will be calculated \n
     phi - phase change of the function \n
     """
-    def __init__(self, A, f, d, phi):
-        super().__init__(A, f, d, phi)
+    def __init__(self, A, f, d, phi, id):
+        super().__init__(A, f, d, phi, id)
     def calculate(self, p):
         """
         function used to calculate values of a wave \n
@@ -267,9 +268,9 @@ class TriangleWave(Wave):
     phi - phase change of the function \n
     k - triangle coefficient, how angled the triangle is \n
     """
-    def __init__(self, A, f, d, phi, k):
+    def __init__(self, A, f, d, phi, k, id):
         self.coeff = k
-        super().__init__(A, f, d, phi)
+        super().__init__(A, f, d, phi, id)
     def __str__(self):
         return super().__str__() + f' Coefficient: {self.coeff}'
     def calculate(self, p):

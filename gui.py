@@ -11,6 +11,7 @@ import fileManager as FM
 import os
 
 import wx
+import re
 
 class PlotPanel(wx.Panel):
     def __init__(self, parent, size):
@@ -18,7 +19,6 @@ class PlotPanel(wx.Panel):
 
         self.figure, self.ax = plt.subplots(figsize=size)
         self.canvas = FigureCanvas(self, -1, self.figure)
-
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.EXPAND)
         self.SetSizer(self.sizer)
@@ -29,6 +29,12 @@ class MyFrame(wx.Frame):
         self.SetMinSize((1920, 1080))
         self.panel = wx.Panel(self)
         self.create_widgets()
+        self.waveMem = []
+        wave = w.Wave(0, 0, 0, 0, 0)
+        wave.result = np.array([[1, 2, 3],[0,0,0]])
+        self.waveMem.append((wave, 'WS'))
+        self.WCIM = 1
+        self.chosenId = 1
         self.currWave = None
         self.Show()
     
@@ -83,6 +89,11 @@ class MyFrame(wx.Frame):
 
         btn_generate = wx.Button(self.panel, label='Generate')
         btn_generate.Bind(wx.EVT_BUTTON, self.on_generate)
+
+        self.choice3_label = wx.StaticText(self.panel, label='Choose Wave Slot:')
+        self.choices3 = ['New Slot']
+        self.choice3 = wx.Choice(self.panel, choices=self.choices3)
+        self.choice3.Bind(wx.EVT_CHOICE, self.on_choice3)
         
         # Add widgets to sizer
         left_sizer.Add(button_sizer, 0, wx.TOP | wx.RIGHT, 5)
@@ -103,6 +114,8 @@ class MyFrame(wx.Frame):
         left_sizer.Add(self.input6_label, 0, wx.LEFT|wx.TOP, 5)
         left_sizer.Add(self.input6, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 5)
         left_sizer.Add(btn_generate, 0, wx.ALL | wx.CENTER, 5)
+        left_sizer.Add(self.choice3_label, 0, wx.LEFT|wx.TOP, 5)
+        left_sizer.Add(self.choice3, 0, wx.ALL, 5)
         
         # Add left sizer to main sizer
         self.sizer.Add(left_sizer, 0, wx.ALL, 5)
@@ -132,6 +145,8 @@ class MyFrame(wx.Frame):
         self.sizer.Add(self.right_sizer, 1, wx.EXPAND)
 
         self.panel.SetSizer(self.sizer)
+
+        self.choice3.SetSelection(0)
 
     def on_choice1(self, event):
         choice1 = self.choice1.GetStringSelection()
@@ -189,27 +204,27 @@ class MyFrame(wx.Frame):
     def choose_func(self, name, A, f, t, phi, k, pr):
         match(name):
             case 'Sine':
-                return w.SinWave(A, f, t, phi)
+                return w.SinWave(A, f, t, phi, self.WCIM)
             case 'One sided Sine':
-                return w.SinHalfWave(A, f, t, phi)
+                return w.SinHalfWave(A, f, t, phi, self.WCIM)
             case 'Two sided Sine':
-                return w.SinModWave(A, f, t, phi)
+                return w.SinModWave(A, f, t, phi, self.WCIM)
             case 'Square':
-                return w.SquareWave(A, f, t, phi)
+                return w.SquareWave(A, f, t, phi, self.WCIM)
             case 'Symmetrical Square':
-                return w.SymSquareWave(A, f, t, phi)
+                return w.SymSquareWave(A, f, t, phi, self.WCIM)
             case 'Triangle':
-                return w.TriangleWave(A, f, t, phi, k)
+                return w.TriangleWave(A, f, t, phi, k, self.WCIM)
             case 'Single':
-                return i.singleImpulse(A, pr, t, f)
+                return i.singleImpulse(A, pr, t, f, self.WCIM)
             case 'Random' :
-                return i.randomImpulse(A, pr, t, f)
+                return i.randomImpulse(A, pr, t, f, self.WCIM)
             case 'Jump' :
-                return i.jump(A, pr, t, f)
+                return i.jump(A, pr, t, f, self.WCIM)
             case 'Gaussian':
-                return n.gaussianNoise(A, t)
+                return n.gaussianNoise(A, t, self.WCIM)
             case 'Linear':
-                return n.linearNoise(A, t)
+                return n.linearNoise(A, t, self.WCIM)
 
     def show_plots(self, res):
         x = res[:,[0]]
@@ -243,6 +258,35 @@ class MyFrame(wx.Frame):
         self.plot_panel_bl.ax.hist(y, 20)
         self.plot_panel_bl.canvas.draw()
 
+    def shortName(self, wave):
+        match(type(wave)):
+            case w.Wave:
+                return 'WS'
+            case w.SinWave:
+                return 'WS'
+            case w.SinHalfWave:
+                return 'WSZ'
+            case w.SinModWave:
+                return 'WSM'
+            case w.SquareWave:
+                return 'WSq'
+            case w.SymSquareWave:
+                return 'WSSq'
+            case w.TriangleWave:
+                return 'WT'
+            case i.impulse:
+                return 'IS'
+            case i.singleImpulse:
+                return 'IS'
+            case i.randomImpulse:
+                return 'IR'
+            case i.jump:
+                return 'IJ'
+            case n.gaussianNoise:
+                return 'NG'
+            case n.linearNoise:
+                return 'NL'
+
     def on_generate(self, event):
         # Generate plot data
         if self.input2.GetValue() == '':
@@ -264,6 +308,20 @@ class MyFrame(wx.Frame):
         self.currWave = wave
         res = wave.calculate(probes)
         self.show_plots(res)
+        if(self.choice3.GetStringSelection() == 'New Slot'):
+            short = self.shortName(self.currWave)
+            self.waveMem.append((self.currWave, short))
+            self.choices3.append('Slot ' + str(self.currWave.id))
+            self.choice3.Append('Slot ' + str(self.currWave.id))
+            self.choice3.SetSelection(self.currWave.id)
+            self.WCIM = self.WCIM + 1
+            self.chosenId = self.currWave
+        else:
+            print(self.chosenId)
+            print(self.waveMem[self.chosenId])
+            print(type(self.waveMem[self.chosenId][0]))
+            print(type(self.currWave))
+            self.waveMem[self.chosenId] = (self.currWave, self.shortName(self.currWave))
 
 
     def on_save(self, event):
@@ -280,6 +338,7 @@ class MyFrame(wx.Frame):
             file_name = dlg.GetFilename()  # Get the name of the file
             folder_path = dlg.GetDirectory()  # Get the folder path
             fileM = FM.FileM(folder_path)
+            fileM.setValue(self.currWave.result)
 
             fileM.serialize(file_name)
         dlg.Destroy()
@@ -300,7 +359,7 @@ class MyFrame(wx.Frame):
 
             fileM = FM.FileM(folder_path)
             res = fileM.load(file_name)
-            self.currWave = fileM.interpret(res)
+            self.currWave = fileM.interpret(res, self.WCIM)
 
         dlg.Destroy()
 
@@ -325,6 +384,86 @@ class MyFrame(wx.Frame):
         self.input4.SetValue(str(self.currWave.phase))
         self.input6.SetValue(str(self.currWave.probeNum))
 
+        self.currWave.id = self.WCIM
+
+        self.choices3.append('Slot ' + str(self.currWave.id))
+        self.choice3.Append('Slot ' + str(self.currWave.id))
+        self.choice3.SetSelection(self.currWave.id)
+
+        self.waveMem.append((self.currWave, 'WS'))
+        self.WCIM = self.WCIM + 1
+
+    def typeReader(self, str):
+        match(str):
+            case 'WS':
+                return [0, 0]
+            case 'WSZ':
+                return [0, 1]
+            case 'WSM':
+                return [0, 2]
+            case 'WSq':
+                return [0, 3]
+            case 'WSSq':
+                return [0, 4]
+            case 'WT':
+                return [0, 5]
+            case 'IS':
+                return [1, 0]
+            case 'IR':
+                return [1, 1]
+            case 'IJ':
+                return [1, 2]
+            case 'NG':
+                return [2, 0]
+            case 'NL':
+                return [2, 1]
+
+    def interpretSlot(self, str):
+        return re.sub(r'\D', '', str)
+
+    def findWaveById(self, id):
+        for wave in self.waveMem:
+            if(wave[0].id == id):
+                return wave
+
+    def on_choice3(self, event):
+
+        check = self.choice3.GetStringSelection()
+        if check == 'New Slot':
+            t = 0
+        else:
+            trim = self.interpretSlot(check)
+            t = int(trim)
+        v = self.findWaveById(t)
+        self.currWave = v[0]
+        self.chosenId = self.currWave.id
+        self.show_plots(v[0].result)
+
+        read = self.typeReader(v[1])
+        self.choice1.SetSelection(read[0])
+        self.choice2.SetSelection(read[1])
+
+        self.input1.SetValue('')
+        self.input2.SetValue('')
+        self.input3.SetValue('')
+        self.input4.SetValue('')
+        self.input5.SetValue('')
+        self.input6.SetValue('')
+
+        self.input1.SetValue(str(self.currWave.amplitude))
+        if(read[0] == 0):
+            self.input2.SetValue(str(self.currWave.frequency))
+            self.input4.SetValue(str(self.currWave.phase))
+            if(read[1] == 5):
+                self.input5.SetValue(str(self.currWave.coeff))               
+        elif(read[0] == 1 and read[1] == 0):
+            self.input2.SetValue(str(self.currWave.imProbe))
+        elif(read[0] == 1 and read[1] == 1):
+            self.input2.SetValue(str(self.currWave.chance))
+        elif(read[0] == 1 and read[1] == 2):
+            self.input2.SetValue(str(self.currWave.jumpTime))
+        self.input3.SetValue(str(self.currWave.time))
+        self.input6.SetValue(str(self.currWave.probeNum))
         
 
 if __name__ == '__main__':

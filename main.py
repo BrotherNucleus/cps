@@ -55,34 +55,34 @@ wave = None
 
 match Type:
     case 1:
-        wave = n.linearNoise(A, t)
+        wave = n.linearNoise(A, t, 0)
     case 2:
-        wave = n.gaussianNoise(A, t)
+        wave = n.gaussianNoise(A, t, 0)
     case 3:
-        wave = w.SinWave(A, f, t, d)
+        wave = w.SinWave(A, f, t, d, 0)
     case 4:
-        wave = w.SinHalfWave(A, f, t, d)
+        wave = w.SinHalfWave(A, f, t, d, 0)
     case 5:
-        wave = w.SinModWave(A, f, t, d)
+        wave = w.SinModWave(A, f, t, d, 0)
     case 6:
-        wave = w.SquareWave(A, f, t, d)
+        wave = w.SquareWave(A, f, t, d, 0)
     case 7:
-        wave = w.SymSquareWave(A, f, t, d)
+        wave = w.SymSquareWave(A, f, t, d, 0)
     case 8:
         k = float(input("Coefficient: "))
-        wave = w.TriangleWave(A, f, t, d, k)
+        wave = w.TriangleWave(A, f, t, d, k, 0)
     case 9:
-        wave = i.jump(A, p, t, ts)
+        wave = i.jump(A, p, t, ts, 0)
     case 10:
-        wave = i.singleImpulse(A, p, t, ns)
+        wave = i.singleImpulse(A, p, t, ns, 0)
     case 11:
-        wave = i.randomImpulse(A, p, t, pr)
+        wave = i.randomImpulse(A, p, t, pr, 0)
     case 0:
         A = 0.2
         t = 30
-        wave1 = w.SinWave(2, 0.5, t, 0.2)
+        wave1 = w.SinWave(2, 0.5, t, 0.2, 0)
         #
-        wave2 = n.gaussianNoise(A, t)
+        wave2 = n.gaussianNoise(A, t, 0)
 print(wave)
 
 values1 = wave1.calculate(p)
