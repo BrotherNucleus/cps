@@ -28,6 +28,7 @@ class MyFrame(wx.Frame):
         super(MyFrame, self).__init__(parent, title=title, size=(1920, 1080))  # Set resolution here
         self.SetMinSize((1920, 1080))
         self.panel = wx.Panel(self)
+        self.Bind(wx.EVT_CLOSE, self.on_close)
         self.create_widgets()
         self.waveMem = []
         wave = w.Wave(0, 0, 0, 0, 0)
@@ -94,6 +95,12 @@ class MyFrame(wx.Frame):
         self.choices3 = ['New Slot']
         self.choice3 = wx.Choice(self.panel, choices=self.choices3)
         self.choice3.Bind(wx.EVT_CHOICE, self.on_choice3)
+
+        btn_calc = wx.Button(self.panel, label="Calculate")
+        btn_calc.Bind(wx.EVT_BUTTON, self.on_calculate)
+
+        self.inputC_label = wx.StaticText(self.panel, label = "Equasion:")
+        self.inputC = wx.TextCtrl(self.panel, size=(150, -1))
         
         # Add widgets to sizer
         left_sizer.Add(button_sizer, 0, wx.TOP | wx.RIGHT, 5)
@@ -116,6 +123,9 @@ class MyFrame(wx.Frame):
         left_sizer.Add(btn_generate, 0, wx.ALL | wx.CENTER, 5)
         left_sizer.Add(self.choice3_label, 0, wx.LEFT|wx.TOP, 5)
         left_sizer.Add(self.choice3, 0, wx.ALL, 5)
+        left_sizer.Add(btn_calc, 0, wx.ALL|wx.BOTTOM, 5)
+        left_sizer.Add(self.inputC_label, 0, wx.LEFT|wx.TOP, 5)
+        left_sizer.Add(self.inputC, 0, wx.LEFT|wx.RIGHT, 5)
         
         # Add left sizer to main sizer
         self.sizer.Add(left_sizer, 0, wx.ALL, 5)
@@ -464,7 +474,62 @@ class MyFrame(wx.Frame):
             self.input2.SetValue(str(self.currWave.jumpTime))
         self.input3.SetValue(str(self.currWave.time))
         self.input6.SetValue(str(self.currWave.probeNum))
+
+    def on_calculate(self, event):
+        val = str(self.inputC.GetValue())
+        eq = val.split()
+        waveDisc1 = int(eq[0])
+        operator = eq[1]
+        waveDisc2 = int(eq[2])
+
+        wave1 = self.findWaveById(waveDisc1)
+        wave2 = self.findWaveById(waveDisc2)
+
+        if operator == '+':
+            wave = wave1[0] + wave2[0]
+        elif operator == '-':
+            wave = wave1[0] - wave2[0]
+        elif operator == '*':
+            wave = wave1[0] * wave2[0]
+        elif operator == '/':
+            wave = wave1[0] / wave2[0]
         
+        print(type(wave))
+        self.currWave = wave
+
+        self.show_plots(self.currWave.result)
+
+        choices2 = ['Sine', 'One sided Sine', 'Two sided Sine', 'Square', 'Symmetrical Square', 'Triangle']
+
+        self.choice1.SetSelection(0)
+        self.choice2.SetItems(choices2)
+        self.choice2.SetSelection(0)
+
+        self.input1_label.SetLabel('Amplitude:')
+        self.input2_label.SetLabel('Frequency:')
+        self.input3_label.SetLabel('Time:')
+        self.input4_label.SetLabel('Phase:')
+        self.input5_label.SetLabel('')
+        self.input6_label.SetLabel('Probe Number: ')
+
+        self.input1.SetValue(str(self.currWave.amplitude))
+        self.input2.SetValue(str(self.currWave.frequency))
+        self.input3.SetValue(str(self.currWave.time))
+        self.input4.SetValue(str(self.currWave.phase))
+        self.input6.SetValue(str(self.currWave.probeNum))
+
+        self.currWave.id = self.WCIM
+
+        self.choices3.append('Slot ' + str(self.currWave.id))
+        self.choice3.Append('Slot ' + str(self.currWave.id))
+        self.choice3.SetSelection(self.currWave.id)
+
+        self.waveMem.append((self.currWave, 'WS'))
+        self.WCIM = self.WCIM + 1
+        
+    def on_close(self, event):
+        self.Destroy()
+        wx.Exit()
 
 if __name__ == '__main__':
     app = wx.App()
