@@ -20,6 +20,7 @@ class impulse:
         self.probeNum = p
         self.time = d
         self.result = None
+        self.id = id
     def __str__(self):
         return f'Amplitude = {self.amplitude}; freqency = {self.frequency}; time = {self.time}; '
     def __add__(self, other):

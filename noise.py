@@ -16,6 +16,7 @@ class noise:
         self.amplitude = A
         self.time = d
         self.result = None
+        self.id = id
     def __str__(self):
         return f'amplitude = {self.amplitude}; phase = {self.phase}; time = {self.time}'
     def __add__(self, other):
@@ -110,6 +111,7 @@ class linearNoise(noise):
          [timeN-1, valueN-1]]\n
         this function takes an argument p which corresponds to number of probes\n
         '''
+        self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):
@@ -138,6 +140,7 @@ class gaussianNoise(noise):
          [timeN-1, valueN-1]]\n
         this function takes an argument p which corresponds to number of probes\n
         '''
+        self.probeNum = p
         probeTime = self.time / (p-1)
         result = np.empty((p, 2))
         for t in range(p):

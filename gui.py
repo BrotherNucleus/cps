@@ -318,20 +318,20 @@ class MyFrame(wx.Frame):
         self.currWave = wave
         res = wave.calculate(probes)
         self.show_plots(res)
-        if(self.choice3.GetStringSelection() == 'New Slot'):
-            short = self.shortName(self.currWave)
-            self.waveMem.append((self.currWave, short))
-            self.choices3.append('Slot ' + str(self.currWave.id))
-            self.choice3.Append('Slot ' + str(self.currWave.id))
-            self.choice3.SetSelection(self.currWave.id)
-            self.WCIM = self.WCIM + 1
-            self.chosenId = self.currWave
-        else:
-            print(self.chosenId)
-            print(self.waveMem[self.chosenId])
-            print(type(self.waveMem[self.chosenId][0]))
-            print(type(self.currWave))
-            self.waveMem[self.chosenId] = (self.currWave, self.shortName(self.currWave))
+        # if(self.choice3.GetStringSelection() == 'New Slot'):
+        short = self.shortName(self.currWave)
+        self.waveMem.append((self.currWave, short))
+        self.choices3.append('Slot ' + str(self.currWave.id))
+        self.choice3.Append('Slot ' + str(self.currWave.id))
+        self.choice3.SetSelection(self.currWave.id)
+        self.WCIM = self.WCIM + 1
+        self.chosenId = self.currWave
+        # else:
+        #     print(self.chosenId)
+        #     print(self.waveMem[self.chosenId])
+        #     print(type(self.waveMem[self.chosenId][0]))
+        #     print(type(self.currWave))
+        #     self.waveMem[self.chosenId] = (self.currWave, self.shortName(self.currWave))
 
 
     def on_save(self, event):
@@ -531,7 +531,7 @@ class MyFrame(wx.Frame):
         self.Destroy()
         wx.Exit()
 
-if __name__ == '__main__':
+def startGui():
     app = wx.App()
     frame = MyFrame(None, title='Signaler v1.0')
     app.MainLoop()
