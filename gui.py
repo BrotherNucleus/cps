@@ -101,6 +101,12 @@ class MyFrame(wx.Frame):
 
         self.inputC_label = wx.StaticText(self.panel, label = "Equasion:")
         self.inputC = wx.TextCtrl(self.panel, size=(150, -1))
+
+        self.inputHist_label = wx.StaticText(self.panel, label = "Hist spaces:")
+        self.inputHist = wx.Slider(self.panel, value = 5, minValue = 5, maxValue = 20)
+        self.inputHist.Bind(wx.EVT_SLIDER, self.on_slider)
+
+        self.histValue = wx.StaticText(self.panel, label = "5")
         
         # Add widgets to sizer
         left_sizer.Add(button_sizer, 0, wx.TOP | wx.RIGHT, 5)
@@ -126,6 +132,9 @@ class MyFrame(wx.Frame):
         left_sizer.Add(btn_calc, 0, wx.ALL|wx.BOTTOM, 5)
         left_sizer.Add(self.inputC_label, 0, wx.LEFT|wx.TOP, 5)
         left_sizer.Add(self.inputC, 0, wx.LEFT|wx.RIGHT, 5)
+        left_sizer.Add(self.inputHist_label, 0, wx.LEFT|wx.TOP, 5)
+        left_sizer.Add(self.inputHist, 0, wx.LEFT|wx.RIGHT, 5)
+        left_sizer.Add(self.histValue, 0, wx.ALL | wx.CENTER, 5)
         
         # Add left sizer to main sizer
         self.sizer.Add(left_sizer, 0, wx.ALL, 5)
@@ -236,6 +245,14 @@ class MyFrame(wx.Frame):
             case 'Linear':
                 return n.linearNoise(A, t, self.WCIM)
 
+    def on_slider(self, event):
+        y = self.currWave.result[:,[1]]
+        v = self.inputHist.GetValue()
+        self.histValue.SetLabel(str(v))
+        self.plot_panel_bl.ax.clear()
+        self.plot_panel_bl.ax.hist(y, v)
+        self.plot_panel_bl.canvas.draw()
+
     def show_plots(self, res):
         x = res[:,[0]]
         y = res[:,[1]]
@@ -263,10 +280,6 @@ class MyFrame(wx.Frame):
             plot_panel.ax.set_title('Generated Plot')
 
             plot_panel.canvas.draw()
-
-        self.plot_panel_bl.ax.clear()
-        self.plot_panel_bl.ax.hist(y, 20)
-        self.plot_panel_bl.canvas.draw()
 
     def shortName(self, wave):
         match(type(wave)):
@@ -318,6 +331,7 @@ class MyFrame(wx.Frame):
         self.currWave = wave
         res = wave.calculate(probes)
         self.show_plots(res)
+        self.on_slider(wx.EVT_SLIDER)
         # if(self.choice3.GetStringSelection() == 'New Slot'):
         short = self.shortName(self.currWave)
         self.waveMem.append((self.currWave, short))
@@ -393,6 +407,8 @@ class MyFrame(wx.Frame):
         self.input3.SetValue(str(self.currWave.time))
         self.input4.SetValue(str(self.currWave.phase))
         self.input6.SetValue(str(self.currWave.probeNum))
+
+        self.on_slider(wx.EVT_SLIDER)
 
         self.currWave.id = self.WCIM
 
