@@ -12,6 +12,7 @@ import os
 
 import wx
 import re
+import recon
 
 class PlotPanel(wx.Panel):
     def __init__(self, parent, size):
@@ -88,6 +89,8 @@ class MyFrame(wx.Frame):
         self.input6_label = wx.StaticText(self.panel, label='Empty:')
         self.input6 = wx.TextCtrl(self.panel, size=(150, -1))
 
+        self.check1 = wx.CheckBox(self.panel, label = "Quantisize")
+
         btn_generate = wx.Button(self.panel, label='Generate')
         btn_generate.Bind(wx.EVT_BUTTON, self.on_generate)
 
@@ -107,7 +110,14 @@ class MyFrame(wx.Frame):
         self.inputHist.Bind(wx.EVT_SLIDER, self.on_slider)
 
         self.histValue = wx.StaticText(self.panel, label = "5")
+
+        self.choice4_label = wx.StaticText(self.panel, label = "Choose reconstruction type:")
+        self.choices4 = ["Rank Zero Extrapolation", "Rank One Interpolation", "sinc"]
+        self.choice4 = wx.Choice(self.panel, choices = self.choices4)
         
+        btn_reconstruct = wx.Button(self.panel, label="Reconstruct")
+        btn_reconstruct.Bind(wx.EVT_BUTTON, self.on_reconstruct)
+
         # Add widgets to sizer
         left_sizer.Add(button_sizer, 0, wx.TOP | wx.RIGHT, 5)
         left_sizer.Add(self.choice1_label, 0, wx.LEFT|wx.TOP, 5)
@@ -126,6 +136,7 @@ class MyFrame(wx.Frame):
         left_sizer.Add(self.input5, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 5)
         left_sizer.Add(self.input6_label, 0, wx.LEFT|wx.TOP, 5)
         left_sizer.Add(self.input6, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 5)
+        left_sizer.Add(self.check1, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 5)
         left_sizer.Add(btn_generate, 0, wx.ALL | wx.CENTER, 5)
         left_sizer.Add(self.choice3_label, 0, wx.LEFT|wx.TOP, 5)
         left_sizer.Add(self.choice3, 0, wx.ALL, 5)
@@ -135,6 +146,10 @@ class MyFrame(wx.Frame):
         left_sizer.Add(self.inputHist_label, 0, wx.LEFT|wx.TOP, 5)
         left_sizer.Add(self.inputHist, 0, wx.LEFT|wx.RIGHT, 5)
         left_sizer.Add(self.histValue, 0, wx.ALL | wx.CENTER, 5)
+        left_sizer.Add(self.choice4_label, 0, wx.LEFT|wx.TOP, 5)
+        left_sizer.Add(self.choice4, 0, wx.ALL, 5)
+        left_sizer.Add(btn_reconstruct, 0, wx.ALL | wx.CENTER, 5)
+
         
         # Add left sizer to main sizer
         self.sizer.Add(left_sizer, 0, wx.ALL, 5)
@@ -310,6 +325,59 @@ class MyFrame(wx.Frame):
             case n.linearNoise:
                 return 'NL'
 
+    def Quant(self, val):
+        ret = val
+        ret[:, [1]] = np.round(val[:, [1]])
+        return ret
+    def on_reconstruct(self, event):
+        choice = self.choice4.GetStringSelection()
+        i = 0
+        if choice == "Rank Zero Extrapolation":
+            i = 1
+        elif choice == "Rank One Interpolation":
+            i = 2
+        elif choice == "sinc":
+            i = 3
+        else:
+            return
+        fileM = FM.FileM('/')
+        res = recon.reconstruct(self.currWave.result, i)
+        self.currWave = fileM.interpret(res, self.WCIM)
+
+        self.show_plots(res)
+
+        choices2 = ['Sine', 'One sided Sine', 'Two sided Sine', 'Square', 'Symmetrical Square', 'Triangle']
+
+        self.choice1.SetSelection(0)
+        self.choice2.SetItems(choices2)
+        self.choice2.SetSelection(0)
+
+        self.input1_label.SetLabel('Amplitude:')
+        self.input2_label.SetLabel('Frequency:')
+        self.input3_label.SetLabel('Time:')
+        self.input4_label.SetLabel('Phase:')
+        self.input5_label.SetLabel('')
+        self.input6_label.SetLabel('Probe Number: ')
+
+        self.input1.SetValue(str(self.currWave.amplitude))
+        self.input2.SetValue(str(self.currWave.frequency))
+        self.input3.SetValue(str(self.currWave.time))
+        self.input4.SetValue(str(self.currWave.phase))
+        self.input6.SetValue(str(self.currWave.probeNum))
+
+        self.on_slider(wx.EVT_SLIDER)
+
+        self.currWave.id = self.WCIM
+
+        self.choices3.append('Slot ' + str(self.currWave.id))
+        self.choice3.Append('Slot ' + str(self.currWave.id))
+        self.choice3.SetSelection(self.currWave.id)
+
+        self.waveMem.append((self.currWave, 'WS'))
+        self.WCIM = self.WCIM + 1
+
+        return
+
     def on_generate(self, event):
         # Generate plot data
         if self.input2.GetValue() == '':
@@ -330,6 +398,9 @@ class MyFrame(wx.Frame):
         wave = self.choose_func(self.choice2.GetStringSelection(), amp, freq, time, phase, coeff, probes)
         self.currWave = wave
         res = wave.calculate(probes)
+        if(self.check1.GetValue()):
+            res = self.Quant(res)
+            wave.result = res
         self.show_plots(res)
         self.on_slider(wx.EVT_SLIDER)
         # if(self.choice3.GetStringSelection() == 'New Slot'):
@@ -386,6 +457,10 @@ class MyFrame(wx.Frame):
             self.currWave = fileM.interpret(res, self.WCIM)
 
         dlg.Destroy()
+
+        if(self.check1.GetValue()):
+            res = self.Quant(res)
+            self.currWave.result = res
 
         self.show_plots(res)
 
