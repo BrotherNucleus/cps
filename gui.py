@@ -271,12 +271,14 @@ class MyFrame(wx.Frame):
     def show_plots(self, res):
         x = res[:,[0]]
         y = res[:,[1]]
-        if(self.currWave.noquant == None and self.currWave.filed == False):
+        if(self.currWave.noquant == None and self.currWave.filed == False and type(self.currWave) != n.gaussianNoise and \
+            type(self.currWave) != n.linearNoise and type(self.currWave) != i.singleImpulse and type(self.currWave) != i.randomImpulse and \
+                type(self.currWave) != i.jump):
             x2 = np.linspace(x[0], x[len(x)-1], 3000)
             y2 = np.zeros(len(x2))
-            for i in range(len(x2)):
-                print(i)
-                y2[i] = self.currWave.func(x2[i])
+            for k in range(len(x2)):
+                print(k)
+                y2[k] = self.currWave.func(x2[k])
 
         anl = a.analizer(self.currWave)
         # Calculate statistics
@@ -289,7 +291,9 @@ class MyFrame(wx.Frame):
         mse = 0
         snr = 0
         md = 0
-        if(self.currWave.noquant != None and self.currWave.filed == False):
+        if(self.currWave.noquant == None and self.currWave.filed == False and type(self.currWave) != n.gaussianNoise and \
+            type(self.currWave) != n.linearNoise and type(self.currWave) != i.singleImpulse and type(self.currWave) != i.randomImpulse and \
+            type(self.currWave) != i.jump):
             mse = anl.MSE(self.currWave.noquant)
             snr = anl.SNR(self.currWave.noquant)
             md = anl.MD(self.currWave.noquant)
@@ -303,7 +307,9 @@ class MyFrame(wx.Frame):
         # Plot data on all plot panels
         for plot_panel in [self.plot_panel_tl, self.plot_panel_tr]:
             plot_panel.ax.clear()
-            if(self.currWave.noquant == None and self.currWave.filed == False):
+            if(self.currWave.noquant == None and self.currWave.filed == False and type(self.currWave) != n.gaussianNoise and \
+                type(self.currWave) != n.linearNoise and type(self.currWave) != i.singleImpulse and type(self.currWave) != i.randomImpulse and \
+                type(self.currWave) != i.jump):
                 plot_panel.ax.plot(x2, y2)
                 plot_panel.ax.plot(x, y, 'bo')
             else:
