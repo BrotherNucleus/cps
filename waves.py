@@ -23,6 +23,7 @@ class Wave:
         self.probeNum = 0
         self.id = id
         self.noquant = None
+        self.filed = False
     def __str__(self):
         return f'A = {self.amplitude}, freq = {self.frequency}, phi = {self.phase}'
     def __add__(self, other):

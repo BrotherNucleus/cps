@@ -271,6 +271,12 @@ class MyFrame(wx.Frame):
     def show_plots(self, res):
         x = res[:,[0]]
         y = res[:,[1]]
+        if(self.currWave.noquant == None and self.currWave.filed == False):
+            x2 = np.linspace(x[0], x[len(x)-1], 3000)
+            y2 = np.zeros(len(x2))
+            for i in range(len(x2)):
+                print(i)
+                y2[i] = self.currWave.func(x2[i])
 
         anl = a.analizer(self.currWave)
         # Calculate statistics
@@ -283,7 +289,7 @@ class MyFrame(wx.Frame):
         mse = 0
         snr = 0
         md = 0
-        if(self.currWave.noquant != None):
+        if(self.currWave.noquant != None and self.currWave.filed == False):
             mse = anl.MSE(self.currWave.noquant)
             snr = anl.SNR(self.currWave.noquant)
             md = anl.MD(self.currWave.noquant)
@@ -297,7 +303,11 @@ class MyFrame(wx.Frame):
         # Plot data on all plot panels
         for plot_panel in [self.plot_panel_tl, self.plot_panel_tr]:
             plot_panel.ax.clear()
-            plot_panel.ax.plot(x, y)
+            if(self.currWave.noquant == None and self.currWave.filed == False):
+                plot_panel.ax.plot(x2, y2)
+                plot_panel.ax.plot(x, y, 'bo')
+            else:
+                plot_panel.ax.plot(x, y)
             plot_panel.ax.set_xlabel('Time')
             plot_panel.ax.set_ylabel('Amplitude')
             plot_panel.ax.set_title('Generated Plot')
@@ -465,6 +475,7 @@ class MyFrame(wx.Frame):
             fileM = FM.FileM(folder_path)
             res = fileM.load(file_name)
             self.currWave = fileM.interpret(res, self.WCIM)
+            self.currWave.filed = True
 
         dlg.Destroy()
 
@@ -634,5 +645,5 @@ class MyFrame(wx.Frame):
 
 def startGui():
     app = wx.App()
-    frame = MyFrame(None, title='Signaler v1.0')
+    frame = MyFrame(None, title='Signaler v2.0')
     app.MainLoop()
