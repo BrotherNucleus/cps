@@ -9,7 +9,7 @@ def reconstruct(res, type):
     xDiff = res[1][0] - res[0][0]
     xJump = xDiff/N
     l = (len(res[:, [1]])-1)*N + 1
-    print(l)
+    #print(l)
     v = np.zeros(l, float)
     x = np.zeros(l, float)
     for i in range(len(res[:, [1]]) - 1):
@@ -52,9 +52,10 @@ def reconstruct(res, type):
             tres.append(zeros[k*rl])
         zeros = tres
     result = np.convolve(v, zeros, 'same')
+    print(result)
     plt.plot(zeros)
     plt.show()
-    print(len(result))
+    #print(len(result))
     #print(len(zeros))
     #result = zeros
     # plt.plot(result)

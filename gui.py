@@ -281,12 +281,16 @@ class MyFrame(wx.Frame):
         var = anl.variance()
 
         mse = 0
+        snr = 0
+        md = 0
         if(self.currWave.noquant != None):
             mse = anl.MSE(self.currWave.noquant)
+            snr = anl.SNR(self.currWave.noquant)
+            md = anl.MD(self.currWave.noquant)
 
         # Display statistics as text on bottom right panel
         self.plot_panel_br.ax.clear()
-        text = f"Mean: {mean:.2f}\nAbsolute Mean: {absMean:.2f}\nStd Dev: {stdDev:.2f}\nVariance: {var:.2f}\nPower: {pow:.2f}, Mean Squared Error: {mse:.2f}"
+        text = f"Mean: {mean:.2f}\nAbsolute Mean: {absMean:.2f}\nStd Dev: {stdDev:.2f}\nVariance: {var:.2f}\nPower: {pow:.2f}\n Mean Squared Error: {mse:.2f}\nSNR: {snr:.2f}\nMaximum DIffrence: {md:.2f}"
         self.plot_panel_br.ax.text(0.5, 0.5, text, ha='center', va='center', fontsize=12)
         self.plot_panel_br.ax.axis('off')
         self.plot_panel_br.canvas.draw()
@@ -331,7 +335,7 @@ class MyFrame(wx.Frame):
 
     def Quant(self, val):
         ret = val
-        ret[:, [1]] = np.round(val[:, [1]])
+        ret[:, [1]] = np.round(val[:, [1]], 1)
         return ret
     def on_reconstruct(self, event):
         choice = self.choice4.GetStringSelection()
