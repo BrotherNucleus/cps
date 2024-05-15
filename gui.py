@@ -280,9 +280,13 @@ class MyFrame(wx.Frame):
         pow = anl.power()
         var = anl.variance()
 
+        mse = 0
+        if(self.currWave.noquant != None):
+            mse = anl.MSE(self.currWave.noquant)
+
         # Display statistics as text on bottom right panel
         self.plot_panel_br.ax.clear()
-        text = f"Mean: {mean:.2f}\nAbsolute Mean: {absMean:.2f}\nStd Dev: {stdDev:.2f}\nVariance: {var:.2f}\nPower: {pow:.2f}"
+        text = f"Mean: {mean:.2f}\nAbsolute Mean: {absMean:.2f}\nStd Dev: {stdDev:.2f}\nVariance: {var:.2f}\nPower: {pow:.2f}, Mean Squared Error: {mse:.2f}"
         self.plot_panel_br.ax.text(0.5, 0.5, text, ha='center', va='center', fontsize=12)
         self.plot_panel_br.ax.axis('off')
         self.plot_panel_br.canvas.draw()
@@ -342,7 +346,9 @@ class MyFrame(wx.Frame):
             return
         fileM = FM.FileM('/')
         res = recon.reconstruct(self.currWave.result, i)
+        temp = self.currWave
         self.currWave = fileM.interpret(res, self.WCIM)
+        self.currWave.noquant = temp
 
         self.show_plots(res)
 
