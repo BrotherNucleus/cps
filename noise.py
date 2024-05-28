@@ -29,6 +29,7 @@ class noise:
                 wave = noise(self.amplitude + other.amplitude, self.time, 0)
             else:
                 wave = w.Wave(self.amplitude + other.amplitude, other.frequency, self.time, other.phase, 0)
+                wave.probeNum = other.probeNum
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -49,6 +50,7 @@ class noise:
                 wave = noise(A, self.time, 0)
             else:
                 wave = w.Wave(A, other.frequency, self.time, other.phase, 0)
+                wave.probeNum = other.probeNum
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -65,6 +67,7 @@ class noise:
                 wave = noise(self.amplitude * other.amplitude, self.time, 0)
             else:
                 wave = w.Wave(self.amplitude * other.amplitude, other.frequency, self.time, other.phase, 0)
+                wave.probeNum = other.probeNum
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -79,6 +82,7 @@ class noise:
                 wave = noise(self.amplitude / other.amplitude, self.time, 0)
             else:
                 wave = w.Wave(self.amplitude / other.amplitude, other.frequency, self.time, other.phase, 0)
+                wave.probeNum = other.probeNum
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]

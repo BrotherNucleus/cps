@@ -33,6 +33,7 @@ class impulse:
                 wave = impulse(self.amplitude + other.amplitude, self.probeNum, self.time, 0)
             else:
                 wave = w.Wave(self.amplitude + other.amplitude, other.frequency, self.time, other.phase, 0)
+                wave.probeNum = self.probeNum
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -53,6 +54,7 @@ class impulse:
                 wave = impulse(A, self.probeNum, self.time, 0)
             else:
                 wave = w.Wave(A, other.frequency, self.time, other.phase, 0)
+                wave.probeNum = self.probeNum
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
@@ -69,6 +71,7 @@ class impulse:
                 wave = impulse(self.amplitude * other.amplitude, self.probeNum, self.time, 0)
             else:
                 wave = w.Wave(self.amplitude * other.amplitude, other.frequency, self.time, other.phase, 0)
+                wave.probeNum = self.probeNum
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]

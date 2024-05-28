@@ -271,13 +271,14 @@ class MyFrame(wx.Frame):
     def show_plots(self, res):
         x = res[:,[0]]
         y = res[:,[1]]
+        print(self.currWave.calculated)
         if(self.currWave.noquant == None and self.currWave.filed == False and type(self.currWave) != n.gaussianNoise and \
             type(self.currWave) != n.linearNoise and type(self.currWave) != i.singleImpulse and type(self.currWave) != i.randomImpulse and \
-                type(self.currWave) != i.jump):
+                type(self.currWave) != i.jump and self.currWave.calculated == False):
             x2 = np.linspace(x[0], x[len(x)-1], 3000)
             y2 = np.zeros(len(x2))
             for k in range(len(x2)):
-                print(k)
+                #print(k)
                 y2[k] = self.currWave.func(x2[k])
 
         anl = a.analizer(self.currWave)
@@ -291,9 +292,7 @@ class MyFrame(wx.Frame):
         mse = 0
         snr = 0
         md = 0
-        if(self.currWave.noquant == None and self.currWave.filed == False and type(self.currWave) != n.gaussianNoise and \
-            type(self.currWave) != n.linearNoise and type(self.currWave) != i.singleImpulse and type(self.currWave) != i.randomImpulse and \
-            type(self.currWave) != i.jump):
+        if(self.currWave.noquant != None):
             mse = anl.MSE(self.currWave.noquant)
             snr = anl.SNR(self.currWave.noquant)
             md = anl.MD(self.currWave.noquant)
@@ -309,7 +308,7 @@ class MyFrame(wx.Frame):
             plot_panel.ax.clear()
             if(self.currWave.noquant == None and self.currWave.filed == False and type(self.currWave) != n.gaussianNoise and \
                 type(self.currWave) != n.linearNoise and type(self.currWave) != i.singleImpulse and type(self.currWave) != i.randomImpulse and \
-                type(self.currWave) != i.jump):
+                type(self.currWave) != i.jump and self.currWave.calculated == False):
                 plot_panel.ax.plot(x2, y2)
                 plot_panel.ax.plot(x, y, 'bo')
             else:
@@ -367,6 +366,7 @@ class MyFrame(wx.Frame):
         fileM = FM.FileM('/')
         res = recon.reconstruct(self.currWave.result, i)
         temp = self.currWave
+        print(type(temp))
         self.currWave = fileM.interpret(res, self.WCIM)
         self.currWave.noquant = temp
 
@@ -612,8 +612,10 @@ class MyFrame(wx.Frame):
         elif operator == '/':
             wave = wave1[0] / wave2[0]
         
-        print(type(wave))
+        #print(type(wave))
         self.currWave = wave
+
+        self.currWave.calculated = True
 
         self.show_plots(self.currWave.result)
 

@@ -24,6 +24,7 @@ class Wave:
         self.id = id
         self.noquant = None
         self.filed = False
+        self.calculated = False
     def __str__(self):
         return f'A = {self.amplitude}, freq = {self.frequency}, phi = {self.phase}'
     def __add__(self, other):
@@ -34,6 +35,7 @@ class Wave:
                 res[i][0] = self.result[i][0]
                 res[i][1] = self.result[i][1] + other.result[i][1]
             wave.result = res
+            wave.probeNum = self.probeNum
             return wave
         else:
             print(f"Error: cannot add two diffrently shaped arrays: ({self.result.shape}) + ({other.result.shape})")
@@ -49,6 +51,7 @@ class Wave:
                 res[i][0] = self.result[i][0]
                 res[i][1] = self.result[i][1] - other.result[i][1]
             wave.result = res
+            wave.probeNum = self.probeNum
             return wave
         else:
             print(f"Error: cannot sub two diffrently shaped arrays: ({self.result.shape}) - ({other.result.shape})")
@@ -65,6 +68,7 @@ class Wave:
                 res[i][0] = self.result[i][0]
                 res[i][1] = self.result[i][1] * other.result[i][1]
             wave.result = res
+            wave.probeNum = self.probeNum
             return wave
     def __truediv__(self, other):
         if(other.result.shape == self.result.shape):
@@ -82,8 +86,9 @@ class Wave:
                 else:
                     res[i][1] = 0
             wave.result = res
+            wave.probeNum = self.probeNum
             return wave
-    def func(self):
+    def func(self, x):
         return self.amplitude
     def calculate(self, p):
         """
