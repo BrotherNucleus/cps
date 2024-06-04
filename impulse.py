@@ -23,6 +23,7 @@ class impulse:
         self.id = id
         self.noquant = None
         self.filed = False
+        self.calculated = False
     def __str__(self):
         return f'Amplitude = {self.amplitude}; freqency = {self.frequency}; time = {self.time}; '
     def __add__(self, other):

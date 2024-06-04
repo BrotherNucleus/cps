@@ -52,5 +52,20 @@ class analizer:
             diff[i] = abs(res2[i] - vals[i])
         return np.max(diff)
 
+def splot(x, h, N, M):
+    '''
+    x - dyskretny sygnał 1\n
+    h - dyskretny sygnał 2\n
+    N - liczba elementów sygnału x\n
+    M - liczba elementów sygnału h
+    '''
+    y = np.zeros(N+M-1, float)
+    for n in range(0, N+M-1):
+        t = 0
+        for k in range(0, N):
+            if(n-k >= 0 and n-k<=M-1):
+                t=t+x[k]*h[n-k]
+        y[n]=t
+    return y
 
 

@@ -19,6 +19,7 @@ class noise:
         self.id = id
         self.noquant = None
         self.filed = False
+        self.calculated = False
     def __str__(self):
         return f'amplitude = {self.amplitude}; phase = {self.phase}; time = {self.time}'
     def __add__(self, other):

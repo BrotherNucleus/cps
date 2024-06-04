@@ -26,7 +26,7 @@ class PlotPanel(wx.Panel):
 
 class MyFrame(wx.Frame):
     def __init__(self, parent, title):
-        super(MyFrame, self).__init__(parent, title=title, size=(1920, 1080))  # Set resolution here
+        super(MyFrame, self).__init__(parent, title=title, size=(1080, 720))  # Set resolution here
         self.SetMinSize((1920, 1080))
         self.panel = wx.Panel(self)
         self.Bind(wx.EVT_CLOSE, self.on_close)
@@ -365,6 +365,7 @@ class MyFrame(wx.Frame):
             return
         fileM = FM.FileM('/')
         res = recon.reconstruct(self.currWave.result, i)
+        res = recon.lowPassFilter(res, 4, len(res[:, 1]), 25)
         temp = self.currWave
         print(type(temp))
         self.currWave = fileM.interpret(res, self.WCIM)
