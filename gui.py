@@ -39,6 +39,7 @@ class MyFrame(wx.Frame):
         self.WCIM = 1
         self.chosenId = 1
         self.currWave = None
+        self.corelationWave = None
         self.Show()
     
     def create_widgets(self):
@@ -73,22 +74,22 @@ class MyFrame(wx.Frame):
         
         # Input spaces
         self.input1_label = wx.StaticText(self.panel, label='Empty:')
-        self.input1 = wx.TextCtrl(self.panel, size=(150, -1))
+        self.input1 = wx.TextCtrl(self.panel, size=(150, -1), value = "1")
         
         self.input2_label = wx.StaticText(self.panel, label='Empty:')
-        self.input2 = wx.TextCtrl(self.panel, size=(150, -1))
+        self.input2 = wx.TextCtrl(self.panel, size=(150, -1), value = "1")
         
         self.input3_label = wx.StaticText(self.panel, label='Empty:')
-        self.input3 = wx.TextCtrl(self.panel, size=(150, -1))
+        self.input3 = wx.TextCtrl(self.panel, size=(150, -1), value = "1")
 
         self.input4_label = wx.StaticText(self.panel, label='Empty:')
-        self.input4 = wx.TextCtrl(self.panel, size=(150, -1))
+        self.input4 = wx.TextCtrl(self.panel, size=(150, -1), value = "0")
 
         self.input5_label = wx.StaticText(self.panel, label='Empty:')
-        self.input5 = wx.TextCtrl(self.panel, size=(150, -1))
+        self.input5 = wx.TextCtrl(self.panel, size=(150, -1), value = "0.5")
 
         self.input6_label = wx.StaticText(self.panel, label='Empty:')
-        self.input6 = wx.TextCtrl(self.panel, size=(150, -1))
+        self.input6 = wx.TextCtrl(self.panel, size=(150, -1), value = "64")
 
         self.check1 = wx.CheckBox(self.panel, label = "Quantisize")
 
@@ -129,6 +130,13 @@ class MyFrame(wx.Frame):
         btn_reconstruct = wx.Button(self.panel, label="Reconstruct")
         btn_reconstruct.Bind(wx.EVT_BUTTON, self.on_reconstruct)
 
+        self.choice6_label = wx.StaticText(self.panel, label='Choose Wave Slot:')
+        self.choice6 = wx.Choice(self.panel, choices=self.choices3)
+        self.choice6.Bind(wx.EVT_CHOICE, self.on_choice6)
+
+        btn_corelate = wx.Button(self.panel, label = 'Corelation')
+        btn_corelate.Bind(wx.EVT_BUTTON, self.on_corelate)
+
         # Add widgets to sizer
         left_sizer.Add(button_sizer, 0, wx.TOP | wx.RIGHT, 5)
         left_sizer.Add(self.choice1_label, 0, wx.LEFT|wx.TOP, 5)
@@ -166,6 +174,9 @@ class MyFrame(wx.Frame):
         left_sizer.Add(self.input7, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 5)
         left_sizer.Add(self.input8_label, 0, wx.LEFT|wx.TOP, 5)
         left_sizer.Add(self.input8, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 5)
+        left_sizer.Add(self.choice6_label, 0, wx.LEFT|wx.TOP, 5)
+        left_sizer.Add(self.choice6, 0, wx.ALL, 5)
+        left_sizer.Add(btn_corelate, 0, wx.ALL | wx.CENTER, 5)
         
         # Add left sizer to main sizer
         self.sizer.Add(left_sizer, 0, wx.ALL, 5)
@@ -424,7 +435,9 @@ class MyFrame(wx.Frame):
 
         self.choices3.append('Slot ' + str(self.currWave.id))
         self.choice3.Append('Slot ' + str(self.currWave.id))
+        self.choice6.Append('Slot ' + str(self.currWave.id))
         self.choice3.SetSelection(self.currWave.id)
+        self.choice6.SetSelection(self.currWave.id)
 
         self.waveMem.append((self.currWave, 'WS'))
         self.WCIM = self.WCIM + 1
@@ -462,6 +475,8 @@ class MyFrame(wx.Frame):
         self.choices3.append('Slot ' + str(self.currWave.id))
         self.choice3.Append('Slot ' + str(self.currWave.id))
         self.choice3.SetSelection(self.currWave.id)
+        self.choice6.Append('Slot ' + str(self.currWave.id))
+        self.choice6.SetSelection(self.currWave.id)
         self.WCIM = self.WCIM + 1
         self.chosenId = self.currWave
         # else:
@@ -544,6 +559,8 @@ class MyFrame(wx.Frame):
         self.choices3.append('Slot ' + str(self.currWave.id))
         self.choice3.Append('Slot ' + str(self.currWave.id))
         self.choice3.SetSelection(self.currWave.id)
+        self.choice6.Append('Slot ' + str(self.currWave.id))
+        self.choice6.SetSelection(self.currWave.id)
 
         self.waveMem.append((self.currWave, 'WS'))
         self.WCIM = self.WCIM + 1
@@ -580,6 +597,59 @@ class MyFrame(wx.Frame):
         for wave in self.waveMem:
             if(wave[0].id == id):
                 return wave
+
+    def on_choice6(self, event):
+        check = self.choice6.GetStringSelection()
+        if check == 'New Slot':
+            t = 0
+        else:
+            trim = self.interpretSlot(check)
+            t = int(trim)
+        v = self.findWaveById(t)
+        self.corelationWave = v[0]
+
+    def on_corelate(self, event):
+        print(type(self.corelationWave))
+        res = recon.corelate(self.currWave.result, self.corelationWave.result)
+        fileM = FM.FileM("/")
+        self.currWave = fileM.interpret(res, self.WCIM)
+        self.currWave.filed = True
+
+        self.show_plots(res)
+
+        choices2 = ['Sine', 'One sided Sine', 'Two sided Sine', 'Square', 'Symmetrical Square', 'Triangle']
+
+        self.choice1.SetSelection(0)
+        self.choice2.SetItems(choices2)
+        self.choice2.SetSelection(0)
+
+        self.input1_label.SetLabel('Amplitude:')
+        self.input2_label.SetLabel('Frequency:')
+        self.input3_label.SetLabel('Time:')
+        self.input4_label.SetLabel('Phase:')
+        self.input5_label.SetLabel('')
+        self.input6_label.SetLabel('Probe Number: ')
+
+        self.input1.SetValue(str(self.currWave.amplitude))
+        self.input2.SetValue(str(self.currWave.frequency))
+        self.input3.SetValue(str(self.currWave.time))
+        self.input4.SetValue(str(self.currWave.phase))
+        self.input6.SetValue(str(self.currWave.probeNum))
+
+        self.on_slider(wx.EVT_SLIDER)
+
+        self.currWave.id = self.WCIM
+
+        self.choices3.append('Slot ' + str(self.currWave.id))
+        self.choice3.Append('Slot ' + str(self.currWave.id))
+        self.choice3.SetSelection(self.currWave.id)
+        self.choice6.Append('Slot ' + str(self.currWave.id))
+        self.choice6.SetSelection(self.currWave.id)
+
+        self.waveMem.append((self.currWave, 'WS'))
+        self.WCIM = self.WCIM + 1
+
+        
 
     def on_choice3(self, event):
 
@@ -670,6 +740,8 @@ class MyFrame(wx.Frame):
         self.choices3.append('Slot ' + str(self.currWave.id))
         self.choice3.Append('Slot ' + str(self.currWave.id))
         self.choice3.SetSelection(self.currWave.id)
+        self.choice6.Append('Slot ' + str(self.currWave.id))
+        self.choice6.SetSelection(self.currWave.id)
 
         self.waveMem.append((self.currWave, 'WS'))
         self.WCIM = self.WCIM + 1

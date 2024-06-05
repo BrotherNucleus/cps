@@ -192,6 +192,27 @@ def lowPassFilterHan(wave, cutoff_freq, sampling_freq, filter_order):
         result[i][1] = filtered[i]
         t += xJump
     return result
+
+def corelate(wave, other):
+    y1 = wave[:,1]
+    x1 = wave[:,0]
+    y2 = other[:,1]
+    x2 = other[:,0]
+
+    y1 = y1 - np.mean(y1)
+    y2 = y2 - np.mean(y2)
+
+    y2 = y2[::-1]
+
+    cor = np.convolve(y2, y1, 'same')
+    xJump = x1[len(x1) - 1] / len(cor)
+    result = np.zeros((len(cor), 2), float)
+    t = 0
+    for i in range(len(cor)):
+        result[i][0] = t
+        result[i][1] = cor[i]
+        t += xJump
+    return result
 # vs = np.empty((32, 2))
 # j = 1024 / 32
 # curr = 0
