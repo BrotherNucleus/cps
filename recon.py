@@ -35,7 +35,7 @@ def reconstruct(res, type):
             zeros[z] = (1 / r)*z
             zeros[z + r] = 1 - (1/r)*z           
     elif type == 3:
-        Len = round(x[len(x) - 1])*5
+        Len = round(x[len(x) - 1])*1000
         L = Len / len(res[:, [1]])
         zeros=np.zeros(Len,float)
         for i in range(0,Len):
@@ -46,10 +46,12 @@ def reconstruct(res, type):
                 z=math.sin(np.pi*t)/(np.pi*t)
                 #print(z)
             zeros[i]=z
-        rl = round(len(zeros) / l) 
+        rl = int(round(len(zeros) / l))
         tres = []
-        for k in range(l):
-            tres.append(zeros[k*rl])
+        for k in range(l - 1):
+            print(k*rl)
+            if(k*rl < len(zeros)):
+                tres.append(zeros[k*rl])
         zeros = tres
     result = np.convolve(v, zeros, 'same')
     print(result)

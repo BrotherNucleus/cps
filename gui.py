@@ -28,7 +28,8 @@ class MyFrame(wx.Frame):
     def __init__(self, parent, title):
         super(MyFrame, self).__init__(parent, title=title, size=(1080, 720))  # Set resolution here
         self.SetMinSize((1920, 1080))
-        self.panel = wx.Panel(self)
+        self.panel = wx.ScrolledWindow(self)
+        self.panel.SetScrollRate(5, 5)
         self.Bind(wx.EVT_CLOSE, self.on_close)
         self.create_widgets()
         self.waveMem = []
@@ -114,6 +115,16 @@ class MyFrame(wx.Frame):
         self.choice4_label = wx.StaticText(self.panel, label = "Choose reconstruction type:")
         self.choices4 = ["Rank Zero Extrapolation", "Rank One Interpolation", "sinc"]
         self.choice4 = wx.Choice(self.panel, choices = self.choices4)
+
+        self.choice5_label = wx.StaticText(self.panel, label = "Choose filter Type:")
+        self.choices5 = ["None", "Low Pass Filter / Rect", "Low Pass Filter / Hanning", "High Pass Filter / Rect", "High Pass Filter / Hanning"]
+        self.choice5 = wx.Choice(self.panel, choices = self.choices5)
+
+        self.input7_label = wx.StaticText(self.panel, label='Cutoff Frequency:')
+        self.input7 = wx.TextCtrl(self.panel, size=(150, -1), value = "4")
+
+        self.input8_label = wx.StaticText(self.panel, label='Rank:')
+        self.input8 = wx.TextCtrl(self.panel, size=(150, -1), value ="32")
         
         btn_reconstruct = wx.Button(self.panel, label="Reconstruct")
         btn_reconstruct.Bind(wx.EVT_BUTTON, self.on_reconstruct)
@@ -149,7 +160,12 @@ class MyFrame(wx.Frame):
         left_sizer.Add(self.choice4_label, 0, wx.LEFT|wx.TOP, 5)
         left_sizer.Add(self.choice4, 0, wx.ALL, 5)
         left_sizer.Add(btn_reconstruct, 0, wx.ALL | wx.CENTER, 5)
-
+        left_sizer.Add(self.choice5_label, 0, wx.LEFT|wx.TOP, 5)
+        left_sizer.Add(self.choice5, 0, wx.ALL, 5)
+        left_sizer.Add(self.input7_label, 0, wx.LEFT|wx.TOP, 5)
+        left_sizer.Add(self.input7, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 5)
+        left_sizer.Add(self.input8_label, 0, wx.LEFT|wx.TOP, 5)
+        left_sizer.Add(self.input8, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM, 5)
         
         # Add left sizer to main sizer
         self.sizer.Add(left_sizer, 0, wx.ALL, 5)
@@ -365,7 +381,17 @@ class MyFrame(wx.Frame):
             return
         fileM = FM.FileM('/')
         res = recon.reconstruct(self.currWave.result, i)
-        res = recon.lowPassFilter(res, 4, len(res[:, 1]), 25)
+        choice2 = self.choice5.GetStringSelection()
+        ct = float(self.input7.GetValue())
+        rank = int(self.input8.GetValue())
+        if choice2 == "Low Pass Filter / Rect":
+            res = recon.lowPassFilter(res, ct, len(res[:, 1]), rank)
+        elif choice2 == "Low Pass Filter / Hanning":
+            res = recon.lowPassFilterHan(res, ct, len(res[:, 1]), rank)
+        elif choice2 == "High Pass Filter / Rect":
+            res = recon.highPassFilter(res, ct, len(res[:, 1]), rank)
+        elif choice2 == "High Pass Filter / Hanning":
+            res = recon.highPassFilterHan(res, ct, len(res[:, 1]), rank)
         temp = self.currWave
         print(type(temp))
         self.currWave = fileM.interpret(res, self.WCIM)
