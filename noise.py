@@ -35,6 +35,7 @@ class noise:
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
                 res[i][1] = self.result[i][1] + other.result[i][1]
+                res[i][2] = self.result[i][2] + other.result[i][2]
             wave.result = res
             return wave
         else:
@@ -56,6 +57,7 @@ class noise:
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
                 res[i][1] = self.result[i][1] - other.result[i][1]
+                res[i][2] = self.result[i][2] - other.result[i][2]
             wave.result = res
             return wave
         else:
@@ -72,7 +74,8 @@ class noise:
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
-                res[i][1] = self.result[i][1] * other.result[i][1]
+                res[i][1] = self.result[i][1] * other.result[i][1] - self.result[i][2] * other.result[i][2]
+                res[i][2] = self.result[i][1] * other.result[i][2] + self.result[i][2] * other.result[i][1]
             wave.result = res
             return wave
     def __truediv__(self, other):
@@ -88,9 +91,13 @@ class noise:
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
                 if abs(other.result[i][1]) > 0.2:
-                    res[i][1] = self.result[i][1] / other.result[i][1]
+                    res[i][1] = (self.result[i][1] * other.result[i][1] + self.result[i][2] * other.result[i][2]) / (other.result[i][1]**2 + other.result[i][2]**2)
                 else:
                     res[i][1] = 0
+                if abs(other.result[i][2]) > 0.2:
+                    res[i][2] = (self.result[i][2] * other.result[i][1] - self.result[i][1] * other.result[i][2]) / (other.result[i][1]**2 + other.result[i][2]**2)
+                else:
+                    res[i][2] = 0
             wave.result = res
             return wave
 
@@ -120,10 +127,11 @@ class linearNoise(noise):
         '''
         self.probeNum = p
         probeTime = self.time / (p-1)
-        result = np.empty((p, 2))
+        result = np.empty((p, 3))
         for t in range(p):
             result[t][0] = t*probeTime
             result[t][1] = self.random()
+            result[t][2] = 0
         self.result = result
         return result
     
@@ -149,9 +157,10 @@ class gaussianNoise(noise):
         '''
         self.probeNum = p
         probeTime = self.time / (p-1)
-        result = np.empty((p, 2))
+        result = np.empty((p, 3))
         for t in range(p):
             result[t][0] = t*probeTime
             result[t][1] = self.amplitude*np.random.normal()
+            result[t][2] = 0
         self.result = result
         return result

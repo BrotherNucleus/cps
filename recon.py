@@ -12,6 +12,7 @@ def reconstruct(res, type):
     #print(l)
     v = np.zeros(l, float)
     x = np.zeros(l, float)
+    z = np.zeros(l, float)
     for i in range(len(res[:, [1]]) - 1):
         v[i*N] = res[i][1]
         x[i*N] = res[i][0]
@@ -62,11 +63,12 @@ def reconstruct(res, type):
     #result = zeros
     # plt.plot(result)
     # plt.show()
-    end = np.zeros((len(result), 2))
+    end = np.zeros((len(result), 3))
     # x = np.linspace(0, xDiff, Len)
     for i in range(0, len(result)):
         end[i][0] = x[i]
         end[i][1] = result[i]
+        end[i][2] = 0
     return end
 
 def highPassFilter(wave, cutoff_freq, sampling_freq, filter_order):
@@ -97,6 +99,7 @@ def highPassFilter(wave, cutoff_freq, sampling_freq, filter_order):
     for i in range(len(filtered)):
         result[i][0] = t
         result[i][1] = filtered[i]
+        result[i][2] = 0
         t += xJump
     return result
 
@@ -130,6 +133,7 @@ def highPassFilterHan(wave, cutoff_freq, sampling_freq, filter_order):
     for i in range(len(filtered)):
         result[i][0] = t
         result[i][1] = filtered[i]
+        result[i][2] = 0
         t += xJump
     return result
 
@@ -159,6 +163,7 @@ def lowPassFilter(wave, cutoff_freq, sampling_freq, filter_order):
     for i in range(len(filtered)):
         result[i][0] = t
         result[i][1] = filtered[i]
+        result[i][2] = 0
         t += xJump
     return result
 
@@ -190,27 +195,36 @@ def lowPassFilterHan(wave, cutoff_freq, sampling_freq, filter_order):
     for i in range(len(filtered)):
         result[i][0] = t
         result[i][1] = filtered[i]
+        result[i][2] = 0
         t += xJump
     return result
 
 def corelate(wave, other):
     y1 = wave[:,1]
     x1 = wave[:,0]
+    z1 = wave[:,2]
     y2 = other[:,1]
     x2 = other[:,0]
+    z2 = other[:,2]
 
     y1 = y1 - np.mean(y1)
     y2 = y2 - np.mean(y2)
 
+    z1 = z1 - np.mean(z1)
+    z2 = z2 - np.mean(z2)
+
     y2 = y2[::-1]
+    z2 = z2[::-1]
 
     cor = np.convolve(y2, y1, 'same')
+    cor2 = np.convolve(z2, z1, 'same')
     xJump = x1[len(x1) - 1] / len(cor)
-    result = np.zeros((len(cor), 2), float)
+    result = np.zeros((len(cor), 3), float)
     t = 0
     for i in range(len(cor)):
         result[i][0] = t
         result[i][1] = cor[i]
+        result[i][1] = cor2[i]
         t += xJump
     return result
 # vs = np.empty((32, 2))

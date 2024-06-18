@@ -34,7 +34,7 @@ class MyFrame(wx.Frame):
         self.create_widgets()
         self.waveMem = []
         wave = w.Wave(0, 0, 0, 0, 0)
-        wave.result = np.array([[1, 2, 3],[0,0,0]])
+        wave.result = np.array([[1, 2, 3],[0,0,0], [0,0,0]])
         self.waveMem.append((wave, 'WS'))
         self.WCIM = 1
         self.chosenId = 1
@@ -298,15 +298,18 @@ class MyFrame(wx.Frame):
     def show_plots(self, res):
         x = res[:,[0]]
         y = res[:,[1]]
+        z = res[:,[2]]
         print(self.currWave.calculated)
         if(self.currWave.noquant == None and self.currWave.filed == False and type(self.currWave) != n.gaussianNoise and \
             type(self.currWave) != n.linearNoise and type(self.currWave) != i.singleImpulse and type(self.currWave) != i.randomImpulse and \
                 type(self.currWave) != i.jump and self.currWave.calculated == False):
             x2 = np.linspace(x[0], x[len(x)-1], 3000)
             y2 = np.zeros(len(x2))
+            z2 = np.zeros(len(x2))
             for k in range(len(x2)):
                 #print(k)
                 y2[k] = self.currWave.func(x2[k])
+                z2[k] = 0
 
         anl = a.analizer(self.currWave)
         # Calculate statistics
@@ -330,8 +333,24 @@ class MyFrame(wx.Frame):
         self.plot_panel_br.ax.text(0.5, 0.5, text, ha='center', va='center', fontsize=12)
         self.plot_panel_br.ax.axis('off')
         self.plot_panel_br.canvas.draw()
+
+        self.plot_panel_tr.ax.clear()
+        if(self.currWave.noquant == None and self.currWave.filed == False and type(self.currWave) != n.gaussianNoise and \
+            type(self.currWave) != n.linearNoise and type(self.currWave) != i.singleImpulse and type(self.currWave) != i.randomImpulse and \
+            type(self.currWave) != i.jump and self.currWave.calculated == False):
+            self.plot_panel_tr.ax.plot(x2, z2)
+            self.plot_panel_tr.ax.plot(x, z, 'bo')
+            print(z)
+        else:
+            self.plot_panel_tr.ax.plot(x, z)
+        self.plot_panel_tr.ax.set_xlabel('Time')
+        self.plot_panel_tr.ax.set_ylabel('Amplitude')
+        self.plot_panel_tr.ax.set_title('Generated Plot')
+
+        self.plot_panel_tr.canvas.draw()
+
         # Plot data on all plot panels
-        for plot_panel in [self.plot_panel_tl, self.plot_panel_tr]:
+        for plot_panel in [self.plot_panel_tl]:
             plot_panel.ax.clear()
             if(self.currWave.noquant == None and self.currWave.filed == False and type(self.currWave) != n.gaussianNoise and \
                 type(self.currWave) != n.linearNoise and type(self.currWave) != i.singleImpulse and type(self.currWave) != i.randomImpulse and \

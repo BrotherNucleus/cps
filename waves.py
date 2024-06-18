@@ -34,6 +34,7 @@ class Wave:
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
                 res[i][1] = self.result[i][1] + other.result[i][1]
+                res[i][2] = self.result[i][2] + other.result[i][2]
             wave.result = res
             wave.probeNum = self.probeNum
             return wave
@@ -50,6 +51,7 @@ class Wave:
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
                 res[i][1] = self.result[i][1] - other.result[i][1]
+                res[i][2] = self.result[i][2] - other.result[i][2]
             wave.result = res
             wave.probeNum = self.probeNum
             return wave
@@ -102,7 +104,7 @@ class Wave:
         """
         self.probeNum = p
         probeTime = self.time / (p-1)
-        result = np.empty((p, 2))
+        result = np.empty((p, 3))
         for t in range(p):
             result[t][0] = probeTime * t
             test = self.func(result[t][0])
@@ -110,6 +112,7 @@ class Wave:
                 result[t][1] = 0
             else:
                 result[t][1] = test
+            result[t][2] = 0
         self.result = result
         return result
 def __str__(self):

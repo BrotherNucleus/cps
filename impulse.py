@@ -39,6 +39,7 @@ class impulse:
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
                 res[i][1] = self.result[i][1] + other.result[i][1]
+                res[i][2] = self.result[i][2] + other.result[i][2]
             wave.result = res
             return wave
         else:
@@ -60,6 +61,7 @@ class impulse:
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
                 res[i][1] = self.result[i][1] - other.result[i][1]
+                res[i][2] = self.result[i][2] - other.result[i][2]
             wave.result = res
             return wave
         else:
@@ -76,7 +78,8 @@ class impulse:
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
-                res[i][1] = self.result[i][1] * other.result[i][1]
+                res[i][1] = self.result[i][1] * other.result[i][1] - self.result[i][2] * other.result[i][2]
+                res[i][2] = self.result[i][1] * other.result[i][2] + self.result[i][2] * other.result[i][1]
             wave.result = res
             return wave
     def __truediv__(self, other):
@@ -90,10 +93,14 @@ class impulse:
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
-                if abs(other.result[i][1]) > 0.02:
-                    res[i][1] = self.result[i][1] / other.result[i][1]
+                if abs(other.result[i][1]) > 0.2:
+                    res[i][1] = (self.result[i][1] * other.result[i][1] + self.result[i][2] * other.result[i][2]) / (other.result[i][1]**2 + other.result[i][2]**2)
                 else:
                     res[i][1] = 0
+                if abs(other.result[i][2]) > 0.2:
+                    res[i][2] = (self.result[i][2] * other.result[i][1] - self.result[i][1] * other.result[i][2]) / (other.result[i][1]**2 + other.result[i][2]**2)
+                else:
+                    res[i][2] = 0
             wave.result = res
             return wave
 
@@ -127,11 +134,12 @@ class singleImpulse(impulse):
         '''
         n = self.probeNum
         T = 1 / self.frequency
-        ret = np.zeros([n, 2])
+        ret = np.zeros([n, 3])
         for i in range(n):
             ret[i][0] = i*T
             if(i == self.imProbe):
                 ret[i][1] = self.amplitude
+            ret[i][2] = 0
         self.result = ret
         return ret
     
@@ -171,11 +179,12 @@ class randomImpulse(impulse):
         '''
         n = self.probeNum
         T = 1 / self.frequency
-        ret = np.zeros([n, 2])
+        ret = np.zeros([n, 3])
         for i in range(n):
             ret[i][0] = i*T
             if(self.random()):
                 ret[i][1] = self.amplitude
+            ret[i][2] = 0
         self.result = ret
         return ret
     
@@ -209,7 +218,7 @@ class jump(impulse):
         '''
         p = self.probeNum
         probeTime = self.time / (p-1)
-        result = np.empty((p, 2))
+        result = np.empty((p, 3))
         for t in range(p):
             result[t][0] = t*probeTime
             if(t*probeTime < self.jumpTime):
@@ -218,5 +227,6 @@ class jump(impulse):
                 result[t][1] = self.amplitude / 2
             else:
                 result[t][1] = self.amplitude
+            result[t][2] = 0
         self.result = result
         return result
