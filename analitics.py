@@ -112,5 +112,102 @@ def FFT(wave):
     T = [np.exp(-2j * np.pi * k / N) * odd[k] for k in range(N // 2)]
     return [even[k] + T[k] for k in range(N // 2)] + [even[k] - T[k] for k in range(N // 2)]
 
-wave = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-FFT(wave)
+def calculate_FFT(wave, t):
+    check = FFT(wave)
+    # check = [x / len(check) for x in check]
+    # check = [check[0]] + [2 * x for x in check[1:len(check)//2]] + check[len(check)//2:]
+    
+    N = len(check)
+    Fs = N / t
+    
+    xs = np.zeros(N, float)
+    for bb in range(len(xs)):
+        xs[bb] = (bb)*Fs/N
+    res = np.zeros((int(len(xs)), 3))
+
+    ys = [y[1] for y in check]
+    
+    for ff in range(int(len(xs))):
+        res[ff][0] = xs[ff]
+        res[ff][1] = ys[ff].real
+        res[ff][2] = ys[ff].imag
+
+    
+    return res
+
+def ifft(spectrum):
+    N = len(spectrum)
+    if N <= 1:
+        return spectrum
+    even = ifft(spectrum[0::2])
+    odd = ifft(spectrum[1::2])
+    T = [np.exp(2j * np.pi * k / N) * odd[k] for k in range(N // 2)]
+    return [(even[k] + T[k]) / 2 for k in range(N // 2)] + [(even[k] - T[k]) / 2 for k in range(N // 2)]
+
+def calculate_ifft(wave, t):
+    cm = np.zeros(len(wave[:, 1]), complex)
+    for ii in range (len(cm)):
+        cm[ii] = complex(wave[ii][1], wave[ii][2])
+    ch = ifft(cm)
+    ys = ch
+    x = np.linspace(0, t, len(ys))
+    result = np.zeros((len(ys), 3))
+    for kk in range(len(ys)):
+        result[kk][0] = x[kk]
+        result[kk][1] = ys[kk].real
+        result[kk][2] = ys[kk].imag
+    
+    return result
+
+def dct(signal):
+    N = len(signal)
+    result = []
+    factor = np.pi / N
+    for k in range(N):
+        sum_val = 0
+        for n in range(N):
+            sum_val += signal[n] * np.cos(factor * (n + 0.5) * k)
+        if k == 0:
+            sum_val *= np.sqrt(1 / N)
+        else:
+            sum_val *= np.sqrt(2 / N)
+        result.append(sum_val)
+    return result
+
+def calculate_dct(wave, t):
+    check = dct(wave[:, 1])
+    N = len(check)
+    xs = np.zeros(N, float)
+    Fs = N / t
+    res = np.zeros((int(len(xs)), 3))
+    for bb in range(len(xs)):
+        xs[bb] = (bb)*Fs/(2*N)
+    for ff in range(int(len(xs))):
+        res[ff][0] = xs[ff]
+        res[ff][1] = check[ff]
+        res[ff][2] = 0
+    return res
+
+def idct(spectrum):
+    N = len(spectrum)
+    result = []
+    factor = np.pi / N
+    normalization_factor = np.sqrt(2 / N)  # Normalization factor for IDCT Type-II
+    
+    for n in range(N):
+        sum_val = 0.5 * spectrum[0] * np.sqrt(1 / N)  # Adjust the first term
+        for k in range(1, N):
+            sum_val += spectrum[k] * np.cos(factor * k * (n + 0.5)) * normalization_factor
+        result.append(sum_val)
+    
+    return result
+
+def calculate_idct(wave, t):
+    rr = idct(wave[:, 1])
+    xs = np.linspace(0, t, len(rr))
+    res = np.zeros((len(rr), 3))
+    for oo in range(len(rr)):
+        res[oo][0] = xs[oo]
+        res[oo][1] = rr[oo]
+        res[oo][2] = 0
+    return res

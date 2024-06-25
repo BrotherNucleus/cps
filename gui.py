@@ -137,6 +137,9 @@ class MyFrame(wx.Frame):
         btn_corelate = wx.Button(self.panel, label = 'Corelation')
         btn_corelate.Bind(wx.EVT_BUTTON, self.on_corelate)
 
+        btn_fft = wx.Button(self.panel, label = 'FFT')
+        btn_fft.Bind(wx.EVT_BUTTON, self.on_fft)
+
         # Add widgets to sizer
         left_sizer.Add(button_sizer, 0, wx.TOP | wx.RIGHT, 5)
         left_sizer.Add(self.choice1_label, 0, wx.LEFT|wx.TOP, 5)
@@ -177,6 +180,7 @@ class MyFrame(wx.Frame):
         left_sizer.Add(self.choice6_label, 0, wx.LEFT|wx.TOP, 5)
         left_sizer.Add(self.choice6, 0, wx.ALL, 5)
         left_sizer.Add(btn_corelate, 0, wx.ALL | wx.CENTER, 5)
+        left_sizer.Add(btn_fft, 0, wx.ALL | wx.CENTER, 5)
         
         # Add left sizer to main sizer
         self.sizer.Add(left_sizer, 0, wx.ALL, 5)
@@ -768,6 +772,52 @@ class MyFrame(wx.Frame):
     def on_close(self, event):
         self.Destroy()
         wx.Exit()
+
+    def on_fft(self, event):
+        fft = a.calculate_FFT(self.currWave.result, self.currWave.time)
+        plots_frame = PlotsFrame(fft, self.currWave.time)  # Create an instance of PlotsFrame
+        plots_frame.Show()  # Show the PlotsFrame instance
+class PlotsFrame(wx.Frame):
+    def __init__(self, res, t):
+        super().__init__(None, title="Plots Window", size=(800, 600))
+        self.panel = wx.Panel(self)
+        self.results = res
+        self.time = t
+        self.create_plots()
+    
+    def create_plots(self):
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        
+        # Create a figure and subplots
+        self.figure, self.axes = plt.subplots(2, 2)
+        self.figure.tight_layout(pad=3.0)
+        
+        # Top-left plot
+        x = self.results[:, 0]
+        y = self.results[:, 1]
+        self.axes[0, 0].plot(x, y)
+        self.axes[0, 0].set_title('Sine Wave')
+        
+        # Top-right plot
+        z = self.results[:, 2]
+        self.axes[0, 1].plot(x, z)
+        self.axes[0, 1].set_title('Cosine Wave')
+        
+        # Bottom-left plot
+        self.axes[1, 0].plot(np.tan(np.linspace(0, 2 * np.pi, 100)))
+        self.axes[1, 0].set_title('Tangent Wave')
+        
+        # Bottom-right plot with text
+        self.axes[1, 1].text(0.5, 0.5, 'Statistics Placeholder', ha='center', va='center')
+        self.axes[1, 1].set_title('Statistics')
+        self.axes[1, 1].axis('off')
+        
+        # Create a canvas and add it to the panel
+        self.canvas = FigureCanvas(self.panel, -1, self.figure)
+        main_sizer.Add(self.canvas, 1, wx.EXPAND | wx.ALL, 5)
+        
+        self.panel.SetSizer(main_sizer)
+        main_sizer.Fit(self.panel)
 
 def startGui():
     app = wx.App()

@@ -99,13 +99,13 @@ import gui as gui
 # print(an.rms())
 # print(an.variance())
 # print(an.power())
-wave1 = w.SinWave(2, 1, 10, 0.2, 0)
+t = 10
+wave1 = w.SinWave(2, 1, t, 0.2, 0)
 N = 512
-Fs = N / 10
 res = wave1.calculate(N)
-wave2 = w.SinWave(1, 3, 10, 0, 1)
+wave2 = w.SinWave(1, 3, t, 0, 1)
 res = wave2.calculate(N)
-wave3 = w.SinWave(0.5, 5, 10, 0, 1)
+wave3 = w.SinWave(0.5, 5, t, 0, 1)
 res = wave3.calculate(N)
 wave4 = wave1 + wave2
 wave4 += wave3
@@ -128,27 +128,21 @@ gg.displayGraph(res2, max(res2[:, 1]), 10)
 # for bb in range(len(xs)):
 #      xs[bb] = (bb)*Fs/N
 
-check= a.FFT(res)
-check = [x / len(check) for x in check]
-check = [check[0]] + [2 * x for x in check[1:len(check)//2]] + check[len(check)//2:]
-N = len(check)
-xs = np.zeros(N, float)
-for bb in range(len(xs)):
-    xs[bb] = (bb)*Fs/N
-ys = [y[1] for y in check]
-# print(ys)
-res = np.zeros((int(len(xs)), 2))
-for ff in range(int(len(xs))):
-    res[ff][0] = xs[ff]
-    res[ff][1] = ys[ff].imag
-print(res)
-mx = max(res[:, 1])
-if mx < -min(res[:, 1]):
-    print(min(res[:, 1]))
-    mx = -min(res[:, 1])
-    print('less')
-print(check[10][1])
-print(check[30][1])
-print(check[50][1])
-gg.displayGraph(res, mx, round(Fs))
+check = a.calculate_FFT(res, t)
+res2 = np.delete(check, -1, axis=1)
+res3 = np.delete(check, 1, axis=1)
+# gg.displayGraph(res2, max(res2[:, 1]), res2[len(res2)- 1][0])
+# gg.displayGraph(res3, max(res3[:, 1]), res2[len(res2)- 1][0])
+print(res2)
+
+
+result = a.calculate_ifft(check, t)
+# gg.displayGraph(result, max(result[:, 1]), result[len(result)-1][0])
+
+result = a.calculate_dct(res, t)
+gg.displayGraph(result, max(result[:, 1]), result[len(result[:, 0])-1][0])
+
+k = a.calculate_idct(result, t)
+gg.displayGraph(k, max(k[:,1]), t)
+
 #gui.startGui()
