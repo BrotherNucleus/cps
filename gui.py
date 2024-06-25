@@ -140,6 +140,12 @@ class MyFrame(wx.Frame):
         btn_fft = wx.Button(self.panel, label = 'FFT')
         btn_fft.Bind(wx.EVT_BUTTON, self.on_fft)
 
+        btn_dct = wx.Button(self.panel, label = 'DCT')
+        btn_dct.Bind(wx.EVT_BUTTON, self.on_dct)
+
+        btn_dft = wx.Button(self.panel, label = 'DFT')
+        btn_dft.Bind(wx.EVT_BUTTON, self.on_dft)
+
         # Add widgets to sizer
         left_sizer.Add(button_sizer, 0, wx.TOP | wx.RIGHT, 5)
         left_sizer.Add(self.choice1_label, 0, wx.LEFT|wx.TOP, 5)
@@ -181,6 +187,8 @@ class MyFrame(wx.Frame):
         left_sizer.Add(self.choice6, 0, wx.ALL, 5)
         left_sizer.Add(btn_corelate, 0, wx.ALL | wx.CENTER, 5)
         left_sizer.Add(btn_fft, 0, wx.ALL | wx.CENTER, 5)
+        left_sizer.Add(btn_dct, 0, wx.ALL | wx.CENTER, 5)
+        left_sizer.Add(btn_dft, 0, wx.ALL | wx.CENTER, 5)
         
         # Add left sizer to main sizer
         self.sizer.Add(left_sizer, 0, wx.ALL, 5)
@@ -777,6 +785,16 @@ class MyFrame(wx.Frame):
         fft = a.calculate_FFT(self.currWave.result, self.currWave.time)
         plots_frame = PlotsFrame(fft, self.currWave.time)  # Create an instance of PlotsFrame
         plots_frame.Show()  # Show the PlotsFrame instance
+
+    def on_dct(self, event):
+        dct = a.calculate_dct(self.currWave.result, self.currWave.time)
+        plots_frame = PlotsFrame(dct, self.currWave.time)  # Create an instance of PlotsFrame
+        plots_frame.Show()  # Show the PlotsFrame instance
+
+    def on_dft(self, event):
+        dft = a.calculate_DFT(self.currWave.result, self.currWave.time)
+        plots_frame = PlotsFrame(dft, self.currWave.time)  # Create an instance of PlotsFrame
+        plots_frame.Show()  # Show the PlotsFrame instance
 class PlotsFrame(wx.Frame):
     def __init__(self, res, t):
         super().__init__(None, title="Plots Window", size=(800, 600))
@@ -796,21 +814,26 @@ class PlotsFrame(wx.Frame):
         x = self.results[:, 0]
         y = self.results[:, 1]
         self.axes[0, 0].plot(x, y)
-        self.axes[0, 0].set_title('Sine Wave')
+        self.axes[0, 0].set_title('Real / frequency')
         
         # Top-right plot
         z = self.results[:, 2]
         self.axes[0, 1].plot(x, z)
-        self.axes[0, 1].set_title('Cosine Wave')
+        self.axes[0, 1].set_title('Imaginary / frequency')
         
         # Bottom-left plot
-        self.axes[1, 0].plot(np.tan(np.linspace(0, 2 * np.pi, 100)))
-        self.axes[1, 0].set_title('Tangent Wave')
+        cm = np.zeros(len(y), complex)
+        for i in range(len(cm)):
+            cm[i] = complex(y[i], z[i])
+        ab = np.absolute(cm)
+        self.axes[1, 0].plot(x, ab)
+        self.axes[1, 0].set_title('Absolute / frequency')
         
         # Bottom-right plot with text
-        self.axes[1, 1].text(0.5, 0.5, 'Statistics Placeholder', ha='center', va='center')
-        self.axes[1, 1].set_title('Statistics')
-        self.axes[1, 1].axis('off')
+        an = np.angle(cm)
+        print(an)
+        self.axes[1, 0].plot(x, an)
+        self.axes[1, 0].set_title('Angle / frequency')
         
         # Create a canvas and add it to the panel
         self.canvas = FigureCanvas(self.panel, -1, self.figure)

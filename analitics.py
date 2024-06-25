@@ -114,8 +114,8 @@ def FFT(wave):
 
 def calculate_FFT(wave, t):
     check = FFT(wave)
-    # check = [x / len(check) for x in check]
-    # check = [check[0]] + [2 * x for x in check[1:len(check)//2]] + check[len(check)//2:]
+    check = [x / len(check) for x in check]
+    check = [check[0]] + [2 * x for x in check[1:len(check)//2]] + check[len(check)//2:]
     
     N = len(check)
     Fs = N / t
@@ -131,6 +131,27 @@ def calculate_FFT(wave, t):
         res[ff][0] = xs[ff]
         res[ff][1] = ys[ff].real
         res[ff][2] = ys[ff].imag
+
+    
+    return res
+
+def calculate_DFT(wave, t):
+    check = DFT(wave[:, 1], wave[:, 2])
+    # check = [x / len(check) for x in check]
+    # check = [check[0]] + [2 * x for x in check[1:len(check)//2]] + check[len(check)//2:]
+    
+    N = len(check[0])
+    Fs = N / t
+    
+    xs = np.zeros(N, float)
+    for bb in range(len(xs)):
+        xs[bb] = (bb)*Fs/N
+    res = np.zeros((int(len(xs)), 3))
+    
+    for ff in range(int(len(xs))):
+        res[ff][0] = xs[ff]
+        res[ff][1] = check[0][ff]
+        res[ff][2] = check[1][ff]
 
     
     return res
@@ -156,6 +177,18 @@ def calculate_ifft(wave, t):
         result[kk][0] = x[kk]
         result[kk][1] = ys[kk].real
         result[kk][2] = ys[kk].imag
+    
+    return result
+
+def calculate_IDFT(wave, t):
+    cm = IDFT(wave[:, 1], wave[:, 2])
+    N = len(cm[0])
+    x = np.linspace(0, t, N)
+    result = np.zeros((N, 3))
+    for kk in range(N):
+        result[kk][0] = x[kk]
+        result[kk][1] = cm[0][kk]
+        result[kk][2] = cm[1][kk]
     
     return result
 

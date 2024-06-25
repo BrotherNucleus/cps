@@ -99,50 +99,60 @@ import gui as gui
 # print(an.rms())
 # print(an.variance())
 # print(an.power())
-t = 10
-wave1 = w.SinWave(2, 1, t, 0.2, 0)
-N = 512
-res = wave1.calculate(N)
-wave2 = w.SinWave(1, 3, t, 0, 1)
-res = wave2.calculate(N)
-wave3 = w.SinWave(0.5, 5, t, 0, 1)
-res = wave3.calculate(N)
-wave4 = wave1 + wave2
-wave4 += wave3
-res = wave4.result
-res2 = np.delete(res, -1, axis=1)
-print(res2)
-gg = g.graph()
-gg.displayGraph(res2, max(res2[:, 1]), 10)
-
-# resy = res[:, 1]
-# resz = res[:, 2]
-# resc = np.zeros(len(res[:, 0]), complex)
-# for h in range(len(res[:, 0])):
-#     resc[h] = complex(resy[h], resz[h])
-
-# check2 = np.fft.fft(resc)
-# print(check2)
-
-# xs = np.zeros(N, float)
-# for bb in range(len(xs)):
-#      xs[bb] = (bb)*Fs/N
-
-check = a.calculate_FFT(res, t)
-res2 = np.delete(check, -1, axis=1)
-res3 = np.delete(check, 1, axis=1)
-# gg.displayGraph(res2, max(res2[:, 1]), res2[len(res2)- 1][0])
-# gg.displayGraph(res3, max(res3[:, 1]), res2[len(res2)- 1][0])
-print(res2)
 
 
-result = a.calculate_ifft(check, t)
-# gg.displayGraph(result, max(result[:, 1]), result[len(result)-1][0])
+# t = 10
+# wave1 = w.SinWave(2, 1, t, 0.2, 0)
+# N = 512
+# res = wave1.calculate(N)
+# wave2 = w.SinWave(1, 3, t, 0, 1)
+# res = wave2.calculate(N)
+# wave3 = w.SinWave(0.5, 5, t, 0, 1)
+# res = wave3.calculate(N)
+# wave4 = wave1 + wave2
+# wave4 += wave3
+# res = wave4.result
+# res2 = np.delete(res, -1, axis=1)
+# print(res2)
+# gg = g.graph()
+# gg.displayGraph(res2, max(res2[:, 1]), 10)
 
-result = a.calculate_dct(res, t)
-gg.displayGraph(result, max(result[:, 1]), result[len(result[:, 0])-1][0])
+# result = a.calculate_DFT(res, t)
 
-k = a.calculate_idct(result, t)
-gg.displayGraph(k, max(k[:,1]), t)
+# gg.displayGraph(result, max(result[:, 1]), result[len(result[:, 0]) - 1][0]) 
 
-#gui.startGui()
+# rs = a.calculate_IDFT(result, t)
+
+# gg.displayGraph(rs, max(rs[:, 1]), rs[len(rs[:, 0]) - 1][0]) 
+
+# # resy = res[:, 1]
+# # resz = res[:, 2]
+# # resc = np.zeros(len(res[:, 0]), complex)
+# # for h in range(len(res[:, 0])):
+# #     resc[h] = complex(resy[h], resz[h])
+
+# # check2 = np.fft.fft(resc)
+# # print(check2)
+
+# # xs = np.zeros(N, float)
+# # for bb in range(len(xs)):
+# #      xs[bb] = (bb)*Fs/N
+
+# check = a.calculate_FFT(res, t)
+# res2 = np.delete(check, -1, axis=1)
+# res3 = np.delete(check, 1, axis=1)
+# # gg.displayGraph(res2, max(res2[:, 1]), res2[len(res2)- 1][0])
+# # gg.displayGraph(res3, max(res3[:, 1]), res2[len(res2)- 1][0])
+# print(res2)
+
+
+# result = a.calculate_ifft(check, t)
+# # gg.displayGraph(result, max(result[:, 1]), result[len(result)-1][0])
+
+# result = a.calculate_dct(res, t)
+# gg.displayGraph(result, max(result[:, 1]), result[len(result[:, 0])-1][0])
+
+# k = a.calculate_idct(result, t)
+# gg.displayGraph(k, max(k[:,1]), t)
+
+gui.startGui()
