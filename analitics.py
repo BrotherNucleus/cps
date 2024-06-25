@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 N = 5
 
@@ -69,3 +70,47 @@ def splot(x, h, N, M):
     return y
 
 
+def DFT(xr,xi):
+    '''
+    xr - real, xi - imaginary
+    '''
+    N=len(xr)
+    Xr=np.zeros(N,float)
+    Xi=np.zeros(N,float)
+    for k in range(0,N):
+        for n in range(0,N):
+            a=2*math.pi/N*k*n
+            c=math.cos(a)
+            s=math.sin(a)
+            Xr[k]=Xr[k]+(c*xr[n]+s*xi[n])
+            Xi[k]=Xi[k]+(c*xi[n]-s*xr[n])
+    return (Xr,Xi)
+
+def IDFT(Xr,Xi):
+    N=len(Xr)
+    xr=np.zeros(N,float)
+    xi=np.zeros(N,float)
+    for n in range(0,N):
+        for k in range(0,N):
+            a=-2*math.pi/N*k*n
+            c=math.cos(a)
+            s=math.sin(a)
+            xr[n]=xr[n]+(c*Xr[k]+s*Xi[k])
+            xi[n]=xi[n]+(c*Xi[k]-s*Xr[k])
+    return (xr/N,xi/N)
+
+def FFT(wave):
+    # signal = np.zeros(len(wave[:,1]), complex)
+    # for i in range(len(wave[:,1])):
+    #     signal[i] = complex(wave[i][1], wave[i][2])
+    # print(signal)
+    N = len(wave)
+    if N <= 1:
+        return wave
+    even = FFT(wave[0::2])
+    odd = FFT(wave[1::2])
+    T = [np.exp(-2j * np.pi * k / N) * odd[k] for k in range(N // 2)]
+    return [even[k] + T[k] for k in range(N // 2)] + [even[k] - T[k] for k in range(N // 2)]
+
+wave = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+FFT(wave)
