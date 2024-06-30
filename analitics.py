@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import time
 
 N = 5
 
@@ -113,7 +114,10 @@ def FFT(wave):
     return [even[k] + T[k] for k in range(N // 2)] + [even[k] - T[k] for k in range(N // 2)]
 
 def calculate_FFT(wave, t):
+    t1 = time.time()
     check = FFT(wave)
+    t2 = time.time()
+    print(f'Elapsed Time for FFT: {t2 - t1}')
     check = [x / len(check) for x in check]
     check = [check[0]] + [2 * x for x in check[1:len(check)//2]] + check[len(check)//2:]
     
@@ -136,7 +140,10 @@ def calculate_FFT(wave, t):
     return res
 
 def calculate_DFT(wave, t):
+    t1 = time.time()
     check = DFT(wave[:, 1], wave[:, 2])
+    t2 = time.time()
+    print(f'Elapsed Time for DFT: {t2 - t1}')
     # check = [x / len(check) for x in check]
     # check = [check[0]] + [2 * x for x in check[1:len(check)//2]] + check[len(check)//2:]
     
@@ -163,13 +170,18 @@ def ifft(spectrum):
     even = ifft(spectrum[0::2])
     odd = ifft(spectrum[1::2])
     T = [np.exp(2j * np.pi * k / N) * odd[k] for k in range(N // 2)]
-    return [(even[k] + T[k]) / 2 for k in range(N // 2)] + [(even[k] - T[k]) / 2 for k in range(N // 2)]
+    return [even[k] + T[k] for k in range(N // 2)] + [even[k] - T[k] for k in range(N // 2)]
 
 def calculate_ifft(wave, t):
     cm = np.zeros(len(wave[:, 1]), complex)
     for ii in range (len(cm)):
         cm[ii] = complex(wave[ii][1], wave[ii][2])
+    t1 = time.time()
     ch = ifft(cm)
+    t2 = time.time()
+    print(f'Elapsed Time for IFFT: {t2 - t1}')
+    Nn = len(ch) ** 0.09
+    ch = [x / Nn for x in ch]
     ys = ch
     x = np.linspace(0, t, len(ys))
     result = np.zeros((len(ys), 3))
@@ -181,7 +193,10 @@ def calculate_ifft(wave, t):
     return result
 
 def calculate_IDFT(wave, t):
+    t1 = time.time()
     cm = IDFT(wave[:, 1], wave[:, 2])
+    t2 = time.time()
+    print(f'Elapsed Time for IDFT: {t2 - t1}')
     N = len(cm[0])
     x = np.linspace(0, t, N)
     result = np.zeros((N, 3))
@@ -208,7 +223,10 @@ def dct(signal):
     return result
 
 def calculate_dct(wave, t):
+    t1 = time.time()
     check = dct(wave[:, 1])
+    t2 = time.time()
+    print(f'Elapsed Time for DCT: {t2 - t1}')
     N = len(check)
     xs = np.zeros(N, float)
     Fs = N / t
@@ -236,7 +254,10 @@ def idct(spectrum):
     return result
 
 def calculate_idct(wave, t):
+    t1 = time.time()
     rr = idct(wave[:, 1])
+    t2 = time.time()
+    print(f'Elapsed Time for IDCT: {t2 - t1}')
     xs = np.linspace(0, t, len(rr))
     res = np.zeros((len(rr), 3))
     for oo in range(len(rr)):

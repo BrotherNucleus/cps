@@ -825,22 +825,129 @@ class PlotsFrame(wx.Frame):
         cm = np.zeros(len(y), complex)
         for i in range(len(cm)):
             cm[i] = complex(y[i], z[i])
-        ab = np.absolute(cm)
+        ab = np.zeros(len(y))
+        for a in range(len(ab)):
+            ab[a] = abs(cm[a])
         self.axes[1, 0].plot(x, ab)
         self.axes[1, 0].set_title('Absolute / frequency')
         
         # Bottom-right plot with text
         an = np.angle(cm)
-        print(an)
-        self.axes[1, 0].plot(x, an)
-        self.axes[1, 0].set_title('Angle / frequency')
+        #print(an)
+        self.axes[1, 1].plot(x, an)
+        self.axes[1, 1].set_title('Angle / frequency')
         
         # Create a canvas and add it to the panel
         self.canvas = FigureCanvas(self.panel, -1, self.figure)
         main_sizer.Add(self.canvas, 1, wx.EXPAND | wx.ALL, 5)
         
+        # Add buttons
+        btn_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        btn1 = wx.Button(self.panel, label="IFFT")
+        btn1.Bind(wx.EVT_BUTTON, self.on_IFFT)
+        btn2 = wx.Button(self.panel, label="IDFT")
+        btn2.Bind(wx.EVT_BUTTON, self.on_IDFT)
+        btn3 = wx.Button(self.panel, label="IDCT")
+        btn3.Bind(wx.EVT_BUTTON, self.on_IDCT)
+        btn_sizer.Add(btn1, 0, wx.ALL, 5)
+        btn_sizer.Add(btn2, 0, wx.ALL, 5)
+        btn_sizer.Add(btn3, 0, wx.ALL, 5)
+        
+        main_sizer.Add(btn_sizer, 0, wx.CENTER)
+        
         self.panel.SetSizer(main_sizer)
         main_sizer.Fit(self.panel)
+    
+    def on_IFFT(self, event):
+        ifft = a.calculate_ifft(self.results, self.time)
+        pfi = PlotsFrameInverse(ifft, self.time)
+        pfi.Show()
+    
+    def on_IDFT(self, event):
+        idft = a.calculate_IDFT(self.results, self.time)
+        pfi = PlotsFrameInverse(idft, self.time)
+        pfi.Show()
+    
+    def on_IDCT(self, event):
+        idct = a.calculate_idct(self.results, self.time)
+        pfi = PlotsFrameInverse(idct, self.time)
+        pfi.Show()
+
+class PlotsFrameInverse(wx.Frame):
+    def __init__(self, res, t):
+        super().__init__(None, title="Plots Window", size=(800, 600))
+        self.panel = wx.Panel(self)
+        self.results = res
+        self.time = t
+        self.create_plots()
+    
+    def create_plots(self):
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        
+        # Create a figure and subplots
+        self.figure, self.axes = plt.subplots(2, 2)
+        self.figure.tight_layout(pad=3.0)
+        
+        # Top-left plot
+        x = self.results[:, 0]
+        y = self.results[:, 1]
+        self.axes[0, 0].plot(x, y)
+        self.axes[0, 0].set_title('Real / frequency')
+        
+        # Top-right plot
+        z = self.results[:, 2]
+        self.axes[0, 1].plot(x, z)
+        self.axes[0, 1].set_title('Imaginary / frequency')
+        
+        # Bottom-left plot
+        cm = np.zeros(len(y), complex)
+        for i in range(len(cm)):
+            cm[i] = complex(y[i], z[i])
+        ab = np.zeros(len(y))
+        for a in range(len(ab)):
+            ab[a] = abs(cm[a])
+        self.axes[1, 0].plot(x, ab)
+        self.axes[1, 0].set_title('Absolute / frequency')
+        
+        # Bottom-right plot with text
+        an = np.angle(cm)
+        #print(an)
+        self.axes[1, 1].plot(x, an)
+        self.axes[1, 1].set_title('Angle / frequency')
+        
+        # Create a canvas and add it to the panel
+        self.canvas = FigureCanvas(self.panel, -1, self.figure)
+        main_sizer.Add(self.canvas, 1, wx.EXPAND | wx.ALL, 5)
+
+            # Add buttons
+        btn_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        btn1 = wx.Button(self.panel, label="Save")
+        btn1.Bind(wx.EVT_BUTTON, self.on_save)
+        btn_sizer.Add(btn1, 0, wx.ALL, 5)
+        
+        main_sizer.Add(btn_sizer, 0, wx.CENTER)
+        
+        self.panel.SetSizer(main_sizer)
+        main_sizer.Fit(self.panel)
+    
+    def on_save(self, event):
+        # Open file dialog for saving
+        wildcard = "NumPy files (*.npy)|*.npy|All files (*.*)|*.*"
+        dlg = wx.FileDialog(self, "Choose a file", wildcard=wildcard, style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+
+        cwd = os.getcwd()
+
+        default_dir = cwd + "/waves"  # Replace this with your desired default directory
+        dlg.SetDirectory(default_dir)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            file_name = dlg.GetFilename()  # Get the name of the file
+            folder_path = dlg.GetDirectory()  # Get the folder path
+            fileM = FM.FileM(folder_path)
+            fileM.setValue(self.results)
+
+            fileM.serialize(file_name)
+        dlg.Destroy()
 
 def startGui():
     app = wx.App()

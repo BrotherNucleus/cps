@@ -224,7 +224,7 @@ def corelate(wave, other):
     for i in range(len(cor)):
         result[i][0] = t
         result[i][1] = cor[i]
-        result[i][1] = cor2[i]
+        result[i][2] = cor2[i]
         t += xJump
     return result
 # vs = np.empty((32, 2))

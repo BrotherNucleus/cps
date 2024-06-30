@@ -68,7 +68,8 @@ class Wave:
             res = np.zeros((self.result.shape))
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
-                res[i][1] = self.result[i][1] * other.result[i][1]
+                res[i][1] = self.result[i][1] * other.result[i][1] - self.result[i][2] * other.result[i][2]
+                res[i][2] = self.result[i][1] * other.result[i][2] + self.result[i][2] * other.result[i][1]
             wave.result = res
             wave.probeNum = self.probeNum
             return wave
@@ -84,9 +85,13 @@ class Wave:
             for i in range(len(res)):
                 res[i][0] = self.result[i][0]
                 if abs(other.result[i][1]) > 0.2:
-                    res[i][1] = self.result[i][1] / other.result[i][1]
+                    res[i][1] = (self.result[i][1] * other.result[i][1] + self.result[i][2] * other.result[i][2]) / (other.result[i][1]**2 + other.result[i][2]**2)
                 else:
                     res[i][1] = 0
+                if abs(other.result[i][2]) > 0.2:
+                    res[i][2] = (self.result[i][2] * other.result[i][1] - self.result[i][1] * other.result[i][2]) / (other.result[i][1]**2 + other.result[i][2]**2)
+                else:
+                    res[i][2] = 0
             wave.result = res
             wave.probeNum = self.probeNum
             return wave
